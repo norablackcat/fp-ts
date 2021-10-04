@@ -1,6 +1,9 @@
+fp-ts's author [is not interested in supporting Deno](https://github.com/gcanti/fp-ts/pull/1594#issuecomment-933343833) so I publish 
+it on [deno.land/x](https://deno.land/x/fp_ts) form this fork.  
+
 <h3 align="center">
   <a href="https://gcanti.github.io/fp-ts/">
-    <img src="./docs/fp-ts-logo.png">
+    <img src="https://user-images.githubusercontent.com/6702424/135910484-720a18ee-0b3f-43f6-88a5-f323e7db9359.png">
   </a>
 </h3>
 
