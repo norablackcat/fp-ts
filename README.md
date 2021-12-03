@@ -1,7 +1,7 @@
 fp-ts's author [is not interested in supporting Deno](https://github.com/gcanti/fp-ts/pull/1594#issuecomment-933343833) so I publish 
 it on [deno.land/x](https://deno.land/x/fp_ts) form this fork.  
 
-WARNING: [It's currently broken](https://github.com/gcanti/fp-ts/pull/1594#issuecomment-935623964) anyone who whould be willing to figure out how [the sources files](https://github.com/garronej/fp-ts/tree/master/src) should be [transformed](https://github.com/garronej/fp-ts/tree/latest/deno_dist) would just have to tell me and I'll fix it. I just don't have time to figure it out myself but. 
+WARNING: [It's currently broken](https://github.com/gcanti/fp-ts/pull/1594#issuecomment-935623964) anyone who whould be willing to figure out how [the sources files](https://github.com/garronej/fp-ts/tree/master/src) should be [transformed](https://github.com/garronej/fp-ts/tree/latest/deno_dist) would just have to tell me and I'll fix it. I just don't have time to figure it out myself. 
 
 <h3 align="center">
   <a href="https://gcanti.github.io/fp-ts/">
