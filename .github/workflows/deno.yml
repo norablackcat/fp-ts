@@ -60,8 +60,8 @@ jobs:
           # Default: true
           push: true
 
-      - name: Run linter
-        run: deno lint
+#       - name: Run linter
+#         run: deno lint
 
-      - name: Run tests
-        run: deno test -A --unstable
+#       - name: Run tests
+#         run: deno test -A --unstable
