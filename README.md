@@ -1,3 +1,30 @@
+# Deno import fixes
+
+Automatically syncs with fork, on tagged release fixes imports to use .ts extensions to run on deno natively
+in `import_map.json`
+```json
+{
+    "imports": {
+      "fp/": "https://raw.githubusercontent.com/norablackcat/fp-ts/2.12.3-deno/src/"
+    }
+}
+```
+post 2.12.3 change the version to tagged release you want to use
+
+example: `"fp/": "https://raw.githubusercontent.com/norablackcat/fp-ts/2.12.3-deno/src/"`
+
+in `deno.json`
+```json
+{
+    "importMap": "import_map.json",
+}
+```
+in `example.ts`
+```typescript
+import { Option, some, none} from "fp/Option.ts"
+const a: Option<string> = some("string");
+const b: Option<string> = none;
+```
 <h3 align="center">
   <a href="https://gcanti.github.io/fp-ts/">
     <img src="./docs/fp-ts-logo.png">
