@@ -16,7 +16,7 @@ jobs:
     # REQUIRED step
     # Step 1: run a standard checkout action, provided by github
     - name: Checkout target repo
-      uses: actions/checkout@main
+      uses: actions/checkout@master
       with:
         # optional: set the branch to checkout,
         # sync action checks out your 'target_sync_branch' anyway
@@ -30,10 +30,10 @@ jobs:
       id: sync
       uses: aormsby/Fork-Sync-With-Upstream-action@v3.2
       with:
-        target_sync_branch: main
+        target_sync_branch: master
         # REQUIRED 'target_repo_token' exactly like this!
         target_repo_token: ${{ secrets.GITHUB_TOKEN }}
-        upstream_sync_branch: main
+        upstream_sync_branch: master
         upstream_sync_repo: gcanti/fp-ts
         upstream_pull_args: '--tags'
         target_branch_push_args: '--force'
