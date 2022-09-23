@@ -1,5 +1,5 @@
-import * as _ from '../../src/ReaderTask'
-import { pipe } from '../../src/function'
+import * as _ from '../../src/ReaderTask.ts'
+import { pipe } from '../../src/function.ts'
 
 //
 // Do

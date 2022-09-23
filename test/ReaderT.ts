@@ -1,8 +1,8 @@
-import * as E from '../src/Either'
-import * as IO from '../src/IO'
-import * as _ from '../src/ReaderT'
-import * as TE from '../src/TaskEither'
-import * as U from './util'
+import * as E from '../src/Either.ts'
+import * as IO from '../src/IO.ts'
+import * as _ from '../src/ReaderT.ts'
+import * as TE from '../src/TaskEither.ts'
+import * as U from './util.ts'
 
 describe('ReaderT', () => {
   it('fromNaturalTransformation', async () => {

@@ -1,13 +1,13 @@
-import { pipe, identity } from '../../src/function'
-import * as _ from '../../src/ReadonlyRecord'
-import * as O from '../../src/Option'
-import * as RA from '../../src/ReadonlyArray'
-import * as E from '../../src/Either'
-import * as N from '../../src/number'
-import * as S from '../../src/string'
-import { getFirstSemigroup } from '../../src/Semigroup'
-import { Foldable } from '../../src/Foldable'
-import { HKT } from '../../src/HKT'
+import { pipe, identity } from '../../src/function.ts'
+import * as _ from '../../src/ReadonlyRecord.ts'
+import * as O from '../../src/Option.ts'
+import * as RA from '../../src/ReadonlyArray.ts'
+import * as E from '../../src/Either.ts'
+import * as N from '../../src/number.ts'
+import * as S from '../../src/string.ts'
+import { getFirstSemigroup } from '../../src/Semigroup.ts'
+import { Foldable } from '../../src/Foldable.ts'
+import { HKT } from '../../src/HKT.ts'
 
 declare const do1: { [key: string]: O.Option<number> }
 declare const ro1: Readonly<Record<'a1' | 'a2', O.Option<number>>>

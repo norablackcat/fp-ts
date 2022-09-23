@@ -1,7 +1,7 @@
-import * as U from './util'
-import * as RA from '../src/ReadonlyArray'
-import { getFoldableWithIndexComposition } from '../src/FoldableWithIndex'
-import * as S from '../src/string'
+import * as U from './util.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { getFoldableWithIndexComposition } from '../src/FoldableWithIndex.ts'
+import * as S from '../src/string.ts'
 
 describe('FoldableWithIndex', () => {
   it('getFoldableWithIndexComposition', () => {

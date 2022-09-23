@@ -1,14 +1,14 @@
-import { log } from '../src/Console'
-import { Kind, URIS } from '../src/HKT'
-import * as O from '../src/Option'
-import { randomInt } from '../src/Random'
-import * as T from '../src/Task'
+import { log } from '../src/Console.ts'
+import { Kind, URIS } from '../src/HKT.ts'
+import * as O from '../src/Option.ts'
+import { randomInt } from '../src/Random.ts'
+import * as T from '../src/Task.ts'
 import { createInterface } from 'readline'
-import * as S from '../src/State'
-import { Monad1 } from '../src/Monad'
-import { flow, pipe } from '../src/function'
-import { apS as apS_ } from '../src/Apply'
-import { chainFirst as chainFirst_ } from '../src/Chain'
+import * as S from '../src/State.ts'
+import { Monad1 } from '../src/Monad.ts'
+import { flow, pipe } from '../src/function.ts'
+import { apS as apS_ } from '../src/Apply.ts'
+import { chainFirst as chainFirst_ } from '../src/Chain.ts'
 
 //
 // type classes
@@ -144,7 +144,7 @@ export const mainTask = main({
 // tests
 //
 
-import { dropLeft, append } from '../src/ReadonlyArray'
+import { dropLeft, append } from '../src/ReadonlyArray.ts'
 
 class TestData {
   constructor(

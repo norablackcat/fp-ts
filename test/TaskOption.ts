@@ -1,12 +1,12 @@
-import { pipe, SK } from '../src/function'
-import * as O from '../src/Option'
-import * as RA from '../src/ReadonlyArray'
-import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray'
-import * as T from '../src/Task'
-import * as TE from '../src/TaskEither'
-import * as _ from '../src/TaskOption'
-import * as U from './util'
-import * as E from '../src/Either'
+import { pipe, SK } from '../src/function.ts'
+import * as O from '../src/Option.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray.ts'
+import * as T from '../src/Task.ts'
+import * as TE from '../src/TaskEither.ts'
+import * as _ from '../src/TaskOption.ts'
+import * as U from './util.ts'
+import * as E from '../src/Either.ts'
 
 describe('TaskOption', () => {
   // -------------------------------------------------------------------------------------

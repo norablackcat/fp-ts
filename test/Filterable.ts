@@ -1,10 +1,10 @@
-import * as U from './util'
-import * as RA from '../src/ReadonlyArray'
-import { getFilterableComposition } from '../src/Filterable'
-import { some, none } from '../src/Option'
-import { right, left } from '../src/Either'
-import { increment } from '../src/function'
-import { separated } from '../src/Separated'
+import * as U from './util.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { getFilterableComposition } from '../src/Filterable.ts'
+import { some, none } from '../src/Option.ts'
+import { right, left } from '../src/Either.ts'
+import { increment } from '../src/function.ts'
+import { separated } from '../src/Separated.ts'
 
 describe('Filterable', () => {
   it('getFilterableComposition', () => {

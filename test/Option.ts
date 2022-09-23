@@ -1,13 +1,13 @@
-import * as U from './util'
-import * as E from '../src/Either'
-import { identity, pipe } from '../src/function'
-import * as N from '../src/number'
-import * as _ from '../src/Option'
-import * as RA from '../src/ReadonlyArray'
-import * as S from '../src/string'
-import * as T from '../src/Task'
-import { separated } from '../src/Separated'
-import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray'
+import * as U from './util.ts'
+import * as E from '../src/Either.ts'
+import { identity, pipe } from '../src/function.ts'
+import * as N from '../src/number.ts'
+import * as _ from '../src/Option.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import * as S from '../src/string.ts'
+import * as T from '../src/Task.ts'
+import { separated } from '../src/Separated.ts'
+import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray.ts'
 
 const p = (n: number): boolean => n > 2
 

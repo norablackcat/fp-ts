@@ -1,5 +1,5 @@
-import * as _ from '../../src/Identity'
-import { pipe } from '../../src/function'
+import * as _ from '../../src/Identity.ts'
+import { pipe } from '../../src/function.ts'
 
 //
 // Do

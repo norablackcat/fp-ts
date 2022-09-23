@@ -1,11 +1,11 @@
 import * as assert from 'assert'
-import { Endomorphism } from '../src/Endomorphism'
-import { identity, pipe } from '../src/function'
-import * as _ from '../src/NonEmptyArray'
-import * as N from '../src/number'
-import * as O from '../src/Option'
-import * as S from '../src/string'
-import * as U from './util'
+import { Endomorphism } from '../src/Endomorphism.ts'
+import { identity, pipe } from '../src/function.ts'
+import * as _ from '../src/NonEmptyArray.ts'
+import * as N from '../src/number.ts'
+import * as O from '../src/Option.ts'
+import * as S from '../src/string.ts'
+import * as U from './util.ts'
 
 describe('NonEmptyArray', () => {
   describe('pipeables', () => {

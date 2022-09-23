@@ -1,6 +1,6 @@
-import * as _ from '../../src/NonEmptyArray'
-import { Ord } from '../../src/Ord'
-import { pipe } from '../../src/function'
+import * as _ from '../../src/NonEmptyArray.ts'
+import { Ord } from '../../src/Ord.ts'
+import { pipe } from '../../src/function.ts'
 
 declare const as: Array<string>
 declare const neas: _.NonEmptyArray<string>

@@ -1,11 +1,11 @@
 import * as path from 'path'
-import * as E from '../src/Either'
-import { pipe } from '../src/function'
-import * as J from '../src/Json'
-import * as RTE from '../src/ReaderTaskEither'
-import * as TE from '../src/TaskEither'
-import { FileSystem, fileSystem } from './FileSystem'
-import { run } from './run'
+import * as E from '../src/Either.ts'
+import { pipe } from '../src/function.ts'
+import * as J from '../src/Json.ts'
+import * as RTE from '../src/ReaderTaskEither.ts'
+import * as TE from '../src/TaskEither.ts'
+import { FileSystem, fileSystem } from './FileSystem.ts'
+import { run } from './run.ts'
 
 interface Build<A> extends RTE.ReaderTaskEither<FileSystem, Error, A> {}
 

@@ -1,43 +1,43 @@
 /**
  * @since 2.12.0
  */
-import { Alt1 } from './Alt'
-import { Alternative1 } from './Alternative'
-import { Applicative1 } from './Applicative'
-import { apFirst as apFirst_, Apply1, apS as apS_, apSecond as apSecond_ } from './Apply'
-import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain'
-import { compact as compact_, Compactable1, separate as separate_ } from './Compactable'
-import { Either } from './Either'
+import { Alt1 } from './Alt.ts'
+import { Alternative1 } from './Alternative.ts'
+import { Applicative1 } from './Applicative.ts'
+import { apFirst as apFirst_, Apply1, apS as apS_, apSecond as apSecond_ } from './Apply.ts'
+import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain.ts'
+import { compact as compact_, Compactable1, separate as separate_ } from './Compactable.ts'
+import { Either } from './Either.ts'
 import {
   filter as filter_,
   Filterable1,
   filterMap as filterMap_,
   partition as partition_,
   partitionMap as partitionMap_
-} from './Filterable'
+} from './Filterable.ts'
 import {
   FromEither1,
   chainEitherK as chainEitherK_,
   chainFirstEitherK as chainFirstEitherK_,
   fromEitherK as fromEitherK_
-} from './FromEither'
-import { chainFirstIOK as chainFirstIOK_, chainIOK as chainIOK_, FromIO1, fromIOK as fromIOK_ } from './FromIO'
-import { flow, identity, Lazy, pipe, SK } from './function'
-import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor'
-import * as _ from './internal'
-import { Monad1 } from './Monad'
-import { MonadIO1 } from './MonadIO'
-import { NaturalTransformation11, NaturalTransformation21 } from './NaturalTransformation'
-import * as O from './Option'
-import * as OT from './OptionT'
-import { Pointed1 } from './Pointed'
-import { Predicate } from './Predicate'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
-import { Refinement } from './Refinement'
-import { Separated } from './Separated'
-import * as I from './IO'
-import { URI as IEURI } from './IOEither'
-import { Zero1, guard as guard_ } from './Zero'
+} from './FromEither.ts'
+import { chainFirstIOK as chainFirstIOK_, chainIOK as chainIOK_, FromIO1, fromIOK as fromIOK_ } from './FromIO.ts'
+import { flow, identity, Lazy, pipe, SK } from './function.ts'
+import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor.ts'
+import * as _ from './internal.ts'
+import { Monad1 } from './Monad.ts'
+import { MonadIO1 } from './MonadIO.ts'
+import { NaturalTransformation11, NaturalTransformation21 } from './NaturalTransformation.ts'
+import * as O from './Option.ts'
+import * as OT from './OptionT.ts'
+import { Pointed1 } from './Pointed.ts'
+import { Predicate } from './Predicate.ts'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
+import { Refinement } from './Refinement.ts'
+import { Separated } from './Separated.ts'
+import * as I from './IO.ts'
+import { URI as IEURI } from './IOEither.ts'
+import { Zero1, guard as guard_ } from './Zero.ts'
 
 import IO = I.IO
 import Option = O.Option

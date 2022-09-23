@@ -1,13 +1,13 @@
-import * as E from '../src/Either'
-import { pipe, SK } from '../src/function'
-import * as IO from '../src/IO'
-import * as N from '../src/number'
-import * as RA from '../src/ReadonlyArray'
-import * as S from '../src/string'
-import * as T from '../src/Task'
-import * as _ from '../src/TaskThese'
-import * as TH from '../src/These'
-import * as U from './util'
+import * as E from '../src/Either.ts'
+import { pipe, SK } from '../src/function.ts'
+import * as IO from '../src/IO.ts'
+import * as N from '../src/number.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import * as S from '../src/string.ts'
+import * as T from '../src/Task.ts'
+import * as _ from '../src/TaskThese.ts'
+import * as TH from '../src/These.ts'
+import * as U from './util.ts'
 
 describe('TaskThese', () => {
   // -------------------------------------------------------------------------------------

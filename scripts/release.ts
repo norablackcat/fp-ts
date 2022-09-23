@@ -1,7 +1,7 @@
-import { run } from './run'
+import { run } from './run.ts'
 import * as child_process from 'child_process'
-import { left, right } from '../src/Either'
-import * as TE from '../src/TaskEither'
+import { left, right } from '../src/Either.ts'
+import * as TE from '../src/TaskEither.ts'
 
 const DIST = 'dist'
 

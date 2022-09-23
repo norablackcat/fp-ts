@@ -1,6 +1,6 @@
-import * as _ from '../src/Alternative'
-import * as O from '../src/Option'
-import * as U from './util'
+import * as _ from '../src/Alternative.ts'
+import * as O from '../src/Option.ts'
+import * as U from './util.ts'
 
 describe('Alternative', () => {
   it('altAll', () => {

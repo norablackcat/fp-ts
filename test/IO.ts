@@ -1,10 +1,10 @@
-import * as E from '../src/Either'
-import { pipe } from '../src/function'
-import * as _ from '../src/IO'
-import * as N from '../src/number'
-import * as RA from '../src/ReadonlyArray'
-import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray'
-import * as U from './util'
+import * as E from '../src/Either.ts'
+import { pipe } from '../src/function.ts'
+import * as _ from '../src/IO.ts'
+import * as N from '../src/number.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray.ts'
+import * as U from './util.ts'
 
 describe('IO', () => {
   describe('pipeables', () => {

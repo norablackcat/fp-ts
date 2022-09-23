@@ -1,6 +1,6 @@
-import * as _ from '../../src/Either'
-import { pipe, flow, identity } from '../../src/function'
-import * as RA from '../../src/ReadonlyArray'
+import * as _ from '../../src/Either.ts'
+import { pipe, flow, identity } from '../../src/function.ts'
+import * as RA from '../../src/ReadonlyArray.ts'
 
 //
 // getOrElseW

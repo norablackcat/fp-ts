@@ -1,6 +1,6 @@
-import * as _ from '../../src/Console'
-import { flow, pipe } from '../../src/function'
-import * as TE from '../../src/TaskEither'
+import * as _ from '../../src/Console.ts'
+import { flow, pipe } from '../../src/function.ts'
+import * as TE from '../../src/TaskEither.ts'
 
 // $ExpectType TaskEither<unknown, string>
 pipe(TE.right('a'), TE.chainFirst(flow(_.error, TE.fromIO)))

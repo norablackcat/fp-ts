@@ -1,8 +1,8 @@
-import * as _ from '../../src/Array'
-import { identity, pipe } from '../../src/function'
-import * as N from '../../src/number'
-import { Ord } from '../../src/Ord'
-import * as E from '../../src/Either'
+import * as _ from '../../src/Array.ts'
+import { identity, pipe } from '../../src/function.ts'
+import * as N from '../../src/number.ts'
+import { Ord } from '../../src/Ord.ts'
+import * as E from '../../src/Either.ts'
 
 declare const us: Array<unknown>
 declare const ns: Array<number>

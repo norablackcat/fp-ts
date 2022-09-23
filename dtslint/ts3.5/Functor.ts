@@ -1,7 +1,7 @@
-import * as _ from '../../src/Functor'
-import * as RA from '../../src/ReadonlyArray'
-import * as E from '../../src/Either'
-import * as RTE from '../../src/ReaderTaskEither'
+import * as _ from '../../src/Functor.ts'
+import * as RA from '../../src/ReadonlyArray.ts'
+import * as E from '../../src/Either.ts'
+import * as RTE from '../../src/ReaderTaskEither.ts'
 
 // $ExpectType <A, B>(f: (a: A) => B) => (fa: readonly (readonly A[])[]) => readonly (readonly B[])[]
 const F11 = _.map(RA.Functor, RA.Functor)

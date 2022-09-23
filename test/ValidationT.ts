@@ -1,8 +1,8 @@
-import * as U from './util'
-import { semigroupString } from '../src/Semigroup'
-import * as _ from '../src/ValidationT'
-import * as IO from '../src/IO'
-import * as E from '../src/Either'
+import * as U from './util.ts'
+import { semigroupString } from '../src/Semigroup.ts'
+import * as _ from '../src/ValidationT.ts'
+import * as IO from '../src/IO.ts'
+import * as E from '../src/Either.ts'
 
 describe('ValidationT', () => {
   describe('getValidationM', () => {

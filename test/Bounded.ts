@@ -1,6 +1,6 @@
-import * as _ from '../src/Bounded'
-import * as N from '../src/number'
-import * as U from './util'
+import * as _ from '../src/Bounded.ts'
+import * as N from '../src/number.ts'
+import * as U from './util.ts'
 
 describe('Bounded', () => {
   it('clamp', () => {

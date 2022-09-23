@@ -1,9 +1,9 @@
-import * as U from './util'
-import * as RA from '../src/ReadonlyArray'
-import { getCompactableComposition } from '../src/Compactable'
-import { none, some } from '../src/Option'
-import { left, right } from '../src/Either'
-import { separated } from '../src/Separated'
+import * as U from './util.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { getCompactableComposition } from '../src/Compactable.ts'
+import { none, some } from '../src/Option.ts'
+import { left, right } from '../src/Either.ts'
+import { separated } from '../src/Separated.ts'
 
 describe('Compactable', () => {
   it('getCompactableComposition', () => {

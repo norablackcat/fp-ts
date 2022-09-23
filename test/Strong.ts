@@ -1,6 +1,6 @@
-import * as U from './util'
-import * as R from '../src/Reader'
-import { fanout, splitStrong } from '../src/Strong'
+import * as U from './util.ts'
+import * as R from '../src/Reader.ts'
+import { fanout, splitStrong } from '../src/Strong.ts'
 
 describe('Strong', () => {
   it('splitStrong', () => {

@@ -1,10 +1,10 @@
-import * as _ from '../../src/TaskEither'
-import * as T from '../../src/Task'
-import * as E from '../../src/Either'
-import * as TO from '../../src/TaskOption'
-import * as IO from '../../src/IO'
-import * as IOE from '../../src/IOEither'
-import { pipe } from '../../src/function'
+import * as _ from '../../src/TaskEither.ts'
+import * as T from '../../src/Task.ts'
+import * as E from '../../src/Either.ts'
+import * as TO from '../../src/TaskOption.ts'
+import * as IO from '../../src/IO.ts'
+import * as IOE from '../../src/IOEither.ts'
+import { pipe } from '../../src/function.ts'
 
 //
 // getOrElseW

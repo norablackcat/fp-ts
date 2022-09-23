@@ -1,5 +1,5 @@
-import * as _ from '../../src/Tree'
-import { pipe } from '../../src/function'
+import * as _ from '../../src/Tree.ts'
+import { pipe } from '../../src/function.ts'
 
 //
 // Do

@@ -1,10 +1,10 @@
 import * as assert from 'assert'
-import * as _ from '../src/function'
-import * as B from '../src/boolean'
-import * as RA from '../src/ReadonlyArray'
-import { concatAll } from '../src/Monoid'
-import * as N from '../src/number'
-import * as U from './util'
+import * as _ from '../src/function.ts'
+import * as B from '../src/boolean.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { concatAll } from '../src/Monoid.ts'
+import * as N from '../src/number.ts'
+import * as U from './util.ts'
 
 const f = (n: number) => n + 1
 const g = (n: number) => n * 2

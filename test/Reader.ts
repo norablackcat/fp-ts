@@ -1,10 +1,10 @@
-import { pipe } from '../src/function'
-import * as N from '../src/number'
-import * as _ from '../src/Reader'
-import * as RA from '../src/ReadonlyArray'
-import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray'
-import * as S from '../src/string'
-import * as U from './util'
+import { pipe } from '../src/function.ts'
+import * as N from '../src/number.ts'
+import * as _ from '../src/Reader.ts'
+import * as RA from '../src/ReadonlyArray.ts'
+import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray.ts'
+import * as S from '../src/string.ts'
+import * as U from './util.ts'
 
 interface Env {
   readonly count: number

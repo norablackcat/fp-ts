@@ -1,9 +1,9 @@
 import { createInterface } from 'readline'
-import { log } from '../src/Console'
-import { flow, pipe } from '../src/function'
-import * as O from '../src/Option'
-import { randomInt } from '../src/Random'
-import * as T from '../src/Task'
+import { log } from '../src/Console.ts'
+import { flow, pipe } from '../src/function.ts'
+import * as O from '../src/Option.ts'
+import { randomInt } from '../src/Random.ts'
+import * as T from '../src/Task.ts'
 
 //
 // helpers

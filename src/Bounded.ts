@@ -7,7 +7,7 @@
  *
  * @since 2.0.0
  */
-import * as O from './Ord'
+import * as O from './Ord.ts'
 
 import Ord = O.Ord
 
