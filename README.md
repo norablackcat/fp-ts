@@ -1,6 +1,8 @@
 # Deno import fixes
 
 Automatically syncs with fork, on tagged release fixes imports to use .ts extensions to run on deno natively
+
+## Setup
 in `import_map.json`
 ```json
 {
