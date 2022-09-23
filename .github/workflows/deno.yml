@@ -23,7 +23,7 @@ jobs:
 
     steps:
       - name: Setup repo
-        uses: actions/checkout@main
+        uses: actions/checkout@master
 
       - name: Setup Deno
         # uses: denoland/setup-deno@v1
