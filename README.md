@@ -7,13 +7,13 @@ in `import_map.json`
 ```json
 {
     "imports": {
-      "fp/": "https://raw.githubusercontent.com/norablackcat/fp-ts/2.12.3-deno/src/"
+      "fp/": "https://raw.githubusercontent.com/garronej/fp-ts/2.12.3-deno/src/"
     }
 }
 ```
 post 2.12.3 change the version to tagged release you want to use
 
-example: `"fp/": "https://raw.githubusercontent.com/norablackcat/fp-ts/2.13.0-deno/src/"`
+example: `"fp/": "https://raw.githubusercontent.com/garronej/fp-ts/2.13.0-deno/src/"`
 
 in `deno.json`
 ```json
