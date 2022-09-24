@@ -1,4 +1,9 @@
 /**
+ * `IOOption<A>` represents a synchronous computation that either yields a value of type `A` or nothing.
+ *
+ * If you want to represent a synchronous computation that never fails, please see `IO`.
+ * If you want to represent a synchronous computation that may fail, please see `IOEither`.
+ *
  * @since 2.12.0
  */
 import { Alt1 } from './Alt.ts'
@@ -20,24 +25,23 @@ import {
   chainEitherK as chainEitherK_,
   chainFirstEitherK as chainFirstEitherK_,
   fromEitherK as fromEitherK_
-} from './FromEither.ts'
-import { chainFirstIOK as chainFirstIOK_, chainIOK as chainIOK_, FromIO1, fromIOK as fromIOK_ } from './FromIO.ts'
-import { flow, identity, Lazy, pipe, SK } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor.ts'
-import * as _ from './internal.ts'
-import { Monad1 } from './Monad.ts'
-import { MonadIO1 } from './MonadIO.ts'
-import { NaturalTransformation11, NaturalTransformation21 } from './NaturalTransformation.ts'
-import * as O from './Option.ts'
-import * as OT from './OptionT.ts'
-import { Pointed1 } from './Pointed.ts'
-import { Predicate } from './Predicate.ts'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
-import { Refinement } from './Refinement.ts'
-import { Separated } from './Separated.ts'
-import * as I from './IO.ts'
-import { URI as IEURI } from './IOEither.ts'
-import { Zero1, guard as guard_ } from './Zero.ts'
+} from './FromEither'
+import { chainFirstIOK as chainFirstIOK_, chainIOK as chainIOK_, FromIO1, fromIOK as fromIOK_ } from './FromIO'
+import { flow, identity, Lazy, pipe, SK } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor1 } from './Functor'
+import * as _ from './internal'
+import { Monad1 } from './Monad'
+import { MonadIO1 } from './MonadIO'
+import * as O from './Option'
+import * as OT from './OptionT'
+import { Pointed1 } from './Pointed'
+import { Predicate } from './Predicate'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
+import { Refinement } from './Refinement'
+import { Separated } from './Separated'
+import * as I from './IO'
+import { IOEither } from './IOEither'
+import { Zero1, guard as guard_ } from './Zero'
 
 import IO = I.IO
 import Option = O.Option
@@ -80,25 +84,25 @@ export const fromPredicate: {
  * @category natural transformations
  * @since 2.12.0
  */
-export const fromOption: NaturalTransformation11<O.URI, URI> = I.of
+export const fromOption: <A>(fa: Option<A>) => IOOption<A> = I.of
 
 /**
  * @category natural transformations
  * @since 2.12.0
  */
-export const fromEither: FromEither1<URI>['fromEither'] = /*#__PURE__*/ OT.fromEither(I.Pointed)
+export const fromEither: <A>(fa: Either<unknown, A>) => IOOption<A> = /*#__PURE__*/ OT.fromEither(I.Pointed)
 
 /**
  * @category natural transformations
  * @since 2.12.0
  */
-export const fromIO: FromIO1<URI>['fromIO'] = /*#__PURE__*/ OT.fromF(I.Functor)
+export const fromIO: <A>(fa: IO<A>) => IOOption<A> = /*#__PURE__*/ OT.fromF(I.Functor)
 
 /**
  * @category natural transformations
  * @since 2.12.0
  */
-export const fromIOEither: NaturalTransformation21<IEURI, URI> = /*#__PURE__*/ I.map(O.fromEither)
+export const fromIOEither: <A>(fa: IOEither<unknown, A>) => IOOption<A> = /*#__PURE__*/ I.map(O.fromEither)
 
 // -------------------------------------------------------------------------------------
 // destructors
@@ -115,19 +119,21 @@ export const match: <B, A>(onNone: () => B, onSome: (a: A) => B) => (ma: IOOptio
 /**
  * Less strict version of [`match`](#match).
  *
+ * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+ *
  * @category destructors
  * @since 2.12.0
  */
 export const matchW: <B, A, C>(onNone: () => B, onSome: (a: A) => C) => (ma: IOOption<A>) => IO<B | C> = match as any
 
 /**
+ * The `E` suffix (short for **E**ffect) means that the handlers return an effect (`IO`).
+ *
  * @category destructors
  * @since 2.12.0
  */
-export const matchE: <B, A>(
-  onNone: () => IO<B>,
-  onSome: (a: A) => IO<B>
-) => (ma: IOOption<A>) => IO<B> = /*#__PURE__*/ OT.matchE(I.Chain)
+export const matchE: <B, A>(onNone: () => IO<B>, onSome: (a: A) => IO<B>) => (ma: IOOption<A>) => IO<B> =
+  /*#__PURE__*/ OT.matchE(I.Chain)
 
 /**
  * Alias of [`matchE`](#matche).
@@ -140,13 +146,13 @@ export const fold = matchE
 /**
  * Less strict version of [`matchE`](#matche).
  *
+ * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+ *
  * @category destructors
  * @since 2.12.0
  */
-export const matchEW: <B, C, A>(
-  onNone: () => IO<B>,
-  onSome: (a: A) => IO<C>
-) => (ma: IOOption<A>) => IO<B | C> = matchE as any
+export const matchEW: <B, C, A>(onNone: () => IO<B>, onSome: (a: A) => IO<C>) => (ma: IOOption<A>) => IO<B | C> =
+  matchE as any
 
 /**
  * @category destructors
@@ -156,6 +162,8 @@ export const getOrElse: <A>(onNone: Lazy<IO<A>>) => (fa: IOOption<A>) => IO<A> =
 
 /**
  * Less strict version of [`getOrElse`](#getorelse).
+ *
+ * The `W` suffix (short for **W**idening) means that the handler return type will be merged.
  *
  * @category destructors
  * @since 2.12.0
@@ -208,17 +216,15 @@ export const chainNullableK: <A, B>(
  * @category combinators
  * @since 2.12.0
  */
-export const fromOptionK: <A extends ReadonlyArray<unknown>, B>(
-  f: (...a: A) => Option<B>
-) => (...a: A) => IOOption<B> = /*#__PURE__*/ OT.fromOptionK(I.Pointed)
+export const fromOptionK: <A extends ReadonlyArray<unknown>, B>(f: (...a: A) => Option<B>) => (...a: A) => IOOption<B> =
+  /*#__PURE__*/ OT.fromOptionK(I.Pointed)
 
 /**
  * @category combinators
  * @since 2.12.0
  */
-export const chainOptionK: <A, B>(
-  f: (a: A) => Option<B>
-) => (ma: IOOption<A>) => IOOption<B> = /*#__PURE__*/ OT.chainOptionK(I.Monad)
+export const chainOptionK: <A, B>(f: (a: A) => Option<B>) => (ma: IOOption<A>) => IOOption<B> =
+  /*#__PURE__*/ OT.chainOptionK(I.Monad)
 
 // -------------------------------------------------------------------------------------
 // type class members
@@ -243,7 +249,7 @@ export const ap: <A>(fa: IOOption<A>) => <B>(fab: IOOption<(a: A) => B>) => IOOp
  * @category Pointed
  * @since 2.12.0
  */
-export const of: Pointed1<URI>['of'] = some
+export const of: <A>(a: A) => IOOption<A> = some
 
 /**
  * @category Monad
@@ -270,6 +276,8 @@ export const alt: <A>(second: Lazy<IOOption<A>>) => (first: IOOption<A>) => IOOp
 /**
  * Less strict version of [`alt`](#alt).
  *
+ * The `W` suffix (short for **W**idening) means that the return types will be merged.
+ *
  * @category Alt
  * @since 2.12.0
  */
@@ -279,7 +287,7 @@ export const altW: <B>(second: Lazy<IOOption<B>>) => <A>(first: IOOption<A>) => 
  * @category Zero
  * @since 2.12.0
  */
-export const zero: Zero1<URI>['zero'] = /*#__PURE__*/ OT.zero(I.Pointed)
+export const zero: <A>() => IOOption<A> = /*#__PURE__*/ OT.zero(I.Pointed)
 
 /**
  * @category constructors
@@ -462,7 +470,8 @@ export const Chain: Chain1<URI> = {
  * @category combinators
  * @since 2.12.0
  */
-export const chainFirst = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <A, B>(f: (a: A) => IOOption<B>) => (first: IOOption<A>) => IOOption<A> =
+  /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * @category instances
@@ -565,19 +574,24 @@ export const FromIO: FromIO1<URI> = {
  * @category combinators
  * @since 2.12.0
  */
-export const fromIOK = /*#__PURE__*/ fromIOK_(FromIO)
+export const fromIOK: <A extends ReadonlyArray<unknown>, B>(f: (...a: A) => I.IO<B>) => (...a: A) => IOOption<B> =
+  /*#__PURE__*/ fromIOK_(FromIO)
 
 /**
  * @category combinators
  * @since 2.12.0
  */
-export const chainIOK = /*#__PURE__*/ chainIOK_(FromIO, Chain)
+export const chainIOK: <A, B>(f: (a: A) => I.IO<B>) => (first: IOOption<A>) => IOOption<B> = /*#__PURE__*/ chainIOK_(
+  FromIO,
+  Chain
+)
 
 /**
  * @category combinators
  * @since 2.12.0
  */
-export const chainFirstIOK = /*#__PURE__*/ chainFirstIOK_(FromIO, Chain)
+export const chainFirstIOK: <A, B>(f: (a: A) => I.IO<B>) => (first: IOOption<A>) => IOOption<A> =
+  /*#__PURE__*/ chainFirstIOK_(FromIO, Chain)
 
 /**
  * @category instances
@@ -592,21 +606,23 @@ export const FromEither: FromEither1<URI> = {
  * @category combinators
  * @since 2.12.0
  */
-export const fromEitherK = /*#__PURE__*/ fromEitherK_(FromEither)
+export const fromEitherK: <E, A extends ReadonlyArray<unknown>, B>(
+  f: (...a: A) => Either<E, B>
+) => (...a: A) => IOOption<B> = /*#__PURE__*/ fromEitherK_(FromEither)
 
 /**
  * @category combinators
  * @since 2.12.0
  */
-export const chainEitherK: <E, A, B>(
-  f: (a: A) => Either<E, B>
-) => (ma: IOOption<A>) => IOOption<B> = /*#__PURE__*/ chainEitherK_(FromEither, Chain)
+export const chainEitherK: <E, A, B>(f: (a: A) => Either<E, B>) => (ma: IOOption<A>) => IOOption<B> =
+  /*#__PURE__*/ chainEitherK_(FromEither, Chain)
 
 /**
  * @category combinators
  * @since 2.12.0
  */
-export const chainFirstEitherK = /*#__PURE__*/ chainFirstEitherK_(FromEither, Chain)
+export const chainFirstEitherK: <E, A, B>(f: (a: A) => Either<E, B>) => (ma: IOOption<A>) => IOOption<A> =
+  /*#__PURE__*/ chainFirstEitherK_(FromEither, Chain)
 
 // -------------------------------------------------------------------------------------
 // do notation
@@ -621,6 +637,15 @@ export const Do: IOOption<{}> = /*#__PURE__*/ of(_.emptyRecord)
  * @since 2.12.0
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
+
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
 
 /**
  * @since 2.12.0

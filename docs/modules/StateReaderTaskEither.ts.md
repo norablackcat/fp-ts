@@ -1,6 +1,6 @@
 ---
 title: StateReaderTaskEither.ts
-nav_order: 99
+nav_order: 100
 parent: Modules
 ---
 
@@ -134,6 +134,7 @@ Added in v2.0.0
   - [bindW](#bindw)
   - [evaluate](#evaluate)
   - [execute](#execute)
+  - [let](#let)
   - [sequenceArray](#sequencearray)
   - [traverseArray](#traversearray)
   - [traverseArrayWithIndex](#traversearraywithindex)
@@ -166,6 +167,8 @@ Added in v2.6.2
 
 Less strict version of [`alt`](#alt).
 
+The `W` suffix (short for **W**idening) means that the environment, the error and the return types will be merged.
+
 **Signature**
 
 ```ts
@@ -195,6 +198,8 @@ Added in v2.0.0
 ## apW
 
 Less strict version of [`ap`](#ap).
+
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
 
 **Signature**
 
@@ -274,6 +279,8 @@ Added in v2.0.0
 
 Less strict version of [`chain`](#chain).
 
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
@@ -303,7 +310,7 @@ Added in v2.7.0
 **Signature**
 
 ```ts
-export declare const of: <S, R, E = never, A = never>(a: A) => StateReaderTaskEither<S, R, E, A>
+export declare const of: <S, R = unknown, E = never, A = never>(a: A) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.7.0
@@ -329,6 +336,8 @@ Added in v2.0.0
 ## apFirstW
 
 Less strict version of [`apFirst`](#apfirst).
+
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
 
 **Signature**
 
@@ -359,6 +368,8 @@ Added in v2.0.0
 ## apSecondW
 
 Less strict version of [`apSecond`](#apsecond).
+
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
 
 **Signature**
 
@@ -414,6 +425,10 @@ Added in v2.4.0
 
 Less strict version of [`chainEitherK`](#chaineitherk).
 
+The `W` suffix (short for **W**idening) means that the error types will be merged.
+
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
@@ -457,6 +472,8 @@ Added in v2.12.0
 
 Less strict version of [`chainFirstEitherK`](#chainfirsteitherk).
 
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
@@ -486,7 +503,7 @@ Added in v2.10.0
 ```ts
 export declare const chainFirstReaderK: <A, R, B>(
   f: (a: A) => R.Reader<R, B>
-) => <S, E = never>(ma: StateReaderTaskEither<S, R, E, A>) => StateReaderTaskEither<S, R, E, A>
+) => <S, E>(ma: StateReaderTaskEither<S, R, E, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.11.0
@@ -495,12 +512,14 @@ Added in v2.11.0
 
 Less strict version of [`chainFirstReaderK`](#chainFirstReaderK).
 
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
 export declare const chainFirstReaderKW: <A, R1, B>(
   f: (a: A) => R.Reader<R1, B>
-) => <S, R2, E = never>(ma: StateReaderTaskEither<S, R2, E, A>) => StateReaderTaskEither<S, R2, E, A>
+) => <S, R2, E>(ma: StateReaderTaskEither<S, R2, E, A>) => StateReaderTaskEither<S, R1 & R2, E, A>
 ```
 
 Added in v2.11.0
@@ -520,6 +539,8 @@ Added in v2.10.0
 ## chainFirstW
 
 Less strict version of [`chainFirst`](#chainfirst).
+
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
 
 Derivable from `Chain`.
 
@@ -592,7 +613,7 @@ Added in v2.10.0
 ```ts
 export declare const chainReaderK: <A, R, B>(
   f: (a: A) => R.Reader<R, B>
-) => <S, E = never>(ma: StateReaderTaskEither<S, R, E, A>) => StateReaderTaskEither<S, R, E, B>
+) => <S, E>(ma: StateReaderTaskEither<S, R, E, A>) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.11.0
@@ -601,12 +622,14 @@ Added in v2.11.0
 
 Less strict version of [`chainReaderK`](#chainReaderK).
 
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
 export declare const chainReaderKW: <A, R1, B>(
   f: (a: A) => R.Reader<R1, B>
-) => <S, R2, E = never>(ma: StateReaderTaskEither<S, R2, E, A>) => StateReaderTaskEither<S, R1 & R2, E, B>
+) => <S, R2, E>(ma: StateReaderTaskEither<S, R2, E, A>) => StateReaderTaskEither<S, R1 & R2, E, B>
 ```
 
 Added in v2.11.0
@@ -644,7 +667,7 @@ Added in v2.6.1
 ```ts
 export declare const chainStateK: <A, S, B>(
   f: (a: A) => State<S, B>
-) => <R, E = never>(ma: StateReaderTaskEither<S, R, E, A>) => StateReaderTaskEither<S, R, E, B>
+) => <R, E>(ma: StateReaderTaskEither<S, R, E, A>) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.11.0
@@ -711,6 +734,8 @@ Added in v2.4.4
 
 Less strict version of [`filterOrElse`](#filterorelse).
 
+The `W` suffix (short for **W**idening) means that the error types will be merged.
+
 **Signature**
 
 ```ts
@@ -761,6 +786,8 @@ Added in v2.0.0
 
 Less strict version of [`flatten`](#flatten).
 
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
@@ -778,7 +805,7 @@ Added in v2.11.0
 ```ts
 export declare const fromEitherK: <E, A extends readonly unknown[], B>(
   f: (...a: A) => E.Either<E, B>
-) => <S, R>(...a: A) => StateReaderTaskEither<S, R, E, B>
+) => <S, R = unknown>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.4.0
@@ -790,7 +817,7 @@ Added in v2.4.0
 ```ts
 export declare const fromIOEitherK: <E, A extends readonly unknown[], B>(
   f: (...a: A) => IOEither<E, B>
-) => <S, R>(...a: A) => StateReaderTaskEither<S, R, E, B>
+) => <S, R = unknown>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.4.0
@@ -800,7 +827,9 @@ Added in v2.4.0
 **Signature**
 
 ```ts
-export declare const fromIOK: <A, B>(f: (...a: A) => IO<B>) => <S, R, E>(...a: A) => StateReaderTaskEither<S, R, E, B>
+export declare const fromIOK: <A extends readonly unknown[], B>(
+  f: (...a: A) => IO<B>
+) => <S, R = unknown, E = never>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.10.0
@@ -812,7 +841,9 @@ Added in v2.10.0
 ```ts
 export declare const fromOptionK: <E>(
   onNone: Lazy<E>
-) => <A, B>(f: (...a: A) => Option<B>) => <S, R>(...a: A) => StateReaderTaskEither<S, R, E, B>
+) => <A extends readonly unknown[], B>(
+  f: (...a: A) => Option<B>
+) => <S, R = unknown>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.10.0
@@ -848,7 +879,7 @@ Added in v2.4.0
 ```ts
 export declare const fromStateK: <A extends readonly unknown[], S, B>(
   f: (...a: A) => State<S, B>
-) => <R, E = never>(...a: A) => StateReaderTaskEither<S, R, E, B>
+) => <R = unknown, E = never>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.11.0
@@ -860,7 +891,7 @@ Added in v2.11.0
 ```ts
 export declare const fromTaskEitherK: <E, A extends readonly unknown[], B>(
   f: (...a: A) => TaskEither<E, B>
-) => <S, R>(...a: A) => StateReaderTaskEither<S, R, E, B>
+) => <S, R = unknown>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.4.0
@@ -870,9 +901,9 @@ Added in v2.4.0
 **Signature**
 
 ```ts
-export declare const fromTaskK: <A, B>(
+export declare const fromTaskK: <A extends readonly unknown[], B>(
   f: (...a: A) => Task<B>
-) => <S, R, E>(...a: A) => StateReaderTaskEither<S, R, E, B>
+) => <S, R = unknown, E = never>(...a: A) => StateReaderTaskEither<S, R, E, B>
 ```
 
 Added in v2.10.0
@@ -924,11 +955,13 @@ Added in v2.11.0
 
 ```ts
 export declare const fromPredicate: {
-  <E, A, B extends A>(refinement: Refinement<A, B>, onFalse: (a: A) => E): <S, R>(
+  <E, A, B extends A>(refinement: Refinement<A, B>, onFalse: (a: A) => E): <S, R = unknown>(
     a: A
   ) => StateReaderTaskEither<S, R, E, B>
-  <E, A>(predicate: Predicate<A>, onFalse: (a: A) => E): <S, R, B extends A>(b: B) => StateReaderTaskEither<S, R, E, B>
-  <E, A>(predicate: Predicate<A>, onFalse: (a: A) => E): <S, R>(a: A) => StateReaderTaskEither<S, R, E, A>
+  <E, A>(predicate: Predicate<A>, onFalse: (a: A) => E): <S, R = unknown, B extends A = A>(
+    b: B
+  ) => StateReaderTaskEither<S, R, E, B>
+  <E, A>(predicate: Predicate<A>, onFalse: (a: A) => E): <S, R = unknown>(a: A) => StateReaderTaskEither<S, R, E, A>
 }
 ```
 
@@ -939,7 +972,9 @@ Added in v2.4.4
 **Signature**
 
 ```ts
-export declare const fromReaderTaskEither: NaturalTransformation34<'ReaderTaskEither', 'StateReaderTaskEither'>
+export declare const fromReaderTaskEither: <R, E, A, S>(
+  fa: RTE.ReaderTaskEither<R, E, A>
+) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -973,7 +1008,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const left: <S, R, E = never, A = never>(e: E) => StateReaderTaskEither<S, R, E, A>
+export declare const left: <S, R, E, A = never>(e: E) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -983,7 +1018,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare function leftIO<S, R, E = never, A = never>(me: IO<E>): StateReaderTaskEither<S, R, E, A>
+export declare function leftIO<S, R, E, A = never>(me: IO<E>): StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -993,7 +1028,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare function leftReader<S, R, E = never, A = never>(me: Reader<R, E>): StateReaderTaskEither<S, R, E, A>
+export declare function leftReader<S, R, E, A = never>(me: Reader<R, E>): StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1003,7 +1038,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const leftState: <S, R, E = never, A = never>(me: State<S, E>) => StateReaderTaskEither<S, R, E, A>
+export declare const leftState: <S, R, E, A = never>(me: State<S, E>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1013,7 +1048,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare function leftTask<S, R, E = never, A = never>(me: Task<E>): StateReaderTaskEither<S, R, E, A>
+export declare function leftTask<S, R, E, A = never>(me: Task<E>): StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1331,7 +1366,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const fromEither: NaturalTransformation24<'Either', 'StateReaderTaskEither'>
+export declare const fromEither: <E, A, S, R = unknown>(fa: E.Either<E, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1341,7 +1376,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const fromIO: NaturalTransformation14<'IO', 'StateReaderTaskEither'>
+export declare const fromIO: <A, S, R = unknown, E = never>(fa: IO<A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.7.0
@@ -1351,7 +1386,7 @@ Added in v2.7.0
 **Signature**
 
 ```ts
-export declare const fromIOEither: NaturalTransformation24<'IOEither', 'StateReaderTaskEither'>
+export declare const fromIOEither: <E, A, S, R = unknown>(fa: IOEither<E, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1361,7 +1396,9 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const fromOption: <E>(onNone: Lazy<E>) => NaturalTransformation14C<'Option', 'StateReaderTaskEither', E>
+export declare const fromOption: <E>(
+  onNone: Lazy<E>
+) => <A, S, R = unknown>(fa: Option<A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1371,7 +1408,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const fromReader: NaturalTransformation24R<'Reader', 'StateReaderTaskEither'>
+export declare const fromReader: <R, A, S, E = never>(fa: R.Reader<R, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.11.0
@@ -1381,7 +1418,7 @@ Added in v2.11.0
 **Signature**
 
 ```ts
-export declare const fromReaderEither: NaturalTransformation34<'ReaderEither', 'StateReaderTaskEither'>
+export declare const fromReaderEither: <R, E, A, S>(fa: ReaderEither<R, E, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1391,7 +1428,7 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const fromState: NaturalTransformation24S<'State', 'StateReaderTaskEither'>
+export declare const fromState: <S, A, R = unknown, E = never>(fa: State<S, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.10.0
@@ -1401,7 +1438,7 @@ Added in v2.10.0
 **Signature**
 
 ```ts
-export declare const fromTask: NaturalTransformation14<'Task', 'StateReaderTaskEither'>
+export declare const fromTask: <A, S, R = unknown, E = never>(fa: Task<A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.7.0
@@ -1411,7 +1448,7 @@ Added in v2.7.0
 **Signature**
 
 ```ts
-export declare const fromTaskEither: NaturalTransformation24<'TaskEither', 'StateReaderTaskEither'>
+export declare const fromTaskEither: <E, A, S, R = unknown>(fa: TaskEither<E, A>) => StateReaderTaskEither<S, R, E, A>
 ```
 
 Added in v2.0.0
@@ -1434,6 +1471,10 @@ export declare const apS: <N, A, S, R, E, B>(
 Added in v2.8.0
 
 ## apSW
+
+Less strict version of [`apS`](#aps).
+
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
 
 **Signature**
 
@@ -1477,6 +1518,8 @@ Added in v2.8.0
 
 ## bindW
 
+The `W` suffix (short for **W**idening) means that the environment types and the error types will be merged.
+
 **Signature**
 
 ```ts
@@ -1517,6 +1560,21 @@ export declare const execute: <S>(
 ```
 
 Added in v2.8.0
+
+## let
+
+**Signature**
+
+```ts
+export declare const let: <N, A, B>(
+  name: Exclude<N, keyof A>,
+  f: (a: A) => B
+) => <S, R, E>(
+  fa: StateReaderTaskEither<S, R, E, A>
+) => StateReaderTaskEither<S, R, E, { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }>
+```
+
+Added in v2.13.0
 
 ## sequenceArray
 

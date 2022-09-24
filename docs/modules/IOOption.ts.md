@@ -6,6 +6,11 @@ parent: Modules
 
 ## IOOption overview
 
+`IOOption<A>` represents a synchronous computation that either yields a value of type `A` or nothing.
+
+If you want to represent a synchronous computation that never fails, please see `IO`.
+If you want to represent a synchronous computation that may fail, please see `IOEither`.
+
 Added in v2.12.0
 
 ---
@@ -95,6 +100,7 @@ Added in v2.12.0
   - [apS](#aps)
   - [bind](#bind)
   - [bindTo](#bindto)
+  - [let](#let)
   - [traverseReadonlyArrayWithIndex](#traversereadonlyarraywithindex)
   - [traverseReadonlyNonEmptyArrayWithIndex](#traversereadonlynonemptyarraywithindex)
 
@@ -115,6 +121,8 @@ Added in v2.12.0
 ## altW
 
 Less strict version of [`alt`](#alt).
+
+The `W` suffix (short for **W**idening) means that the return types will be merged.
 
 **Signature**
 
@@ -385,7 +393,9 @@ Added in v2.12.0
 **Signature**
 
 ```ts
-export declare const fromEitherK: <E, A, B>(f: (...a: A) => Either<E, B>) => (...a: A) => IOOption<B>
+export declare const fromEitherK: <E, A extends readonly unknown[], B>(
+  f: (...a: A) => Either<E, B>
+) => (...a: A) => IOOption<B>
 ```
 
 Added in v2.12.0
@@ -395,7 +405,7 @@ Added in v2.12.0
 **Signature**
 
 ```ts
-export declare const fromIOK: <A, B>(f: (...a: A) => I.IO<B>) => (...a: A) => IOOption<B>
+export declare const fromIOK: <A extends readonly unknown[], B>(f: (...a: A) => I.IO<B>) => (...a: A) => IOOption<B>
 ```
 
 Added in v2.12.0
@@ -486,6 +496,8 @@ Added in v2.12.0
 
 Less strict version of [`getOrElse`](#getorelse).
 
+The `W` suffix (short for **W**idening) means that the handler return type will be merged.
+
 **Signature**
 
 ```ts
@@ -506,6 +518,8 @@ Added in v2.12.0
 
 ## matchE
 
+The `E` suffix (short for **E**ffect) means that the handlers return an effect (`IO`).
+
 **Signature**
 
 ```ts
@@ -517,6 +531,8 @@ Added in v2.12.0
 ## matchEW
 
 Less strict version of [`matchE`](#matche).
+
+The `W` suffix (short for **W**idening) means that the handler return types will be merged.
 
 **Signature**
 
@@ -532,6 +548,8 @@ Added in v2.12.0
 ## matchW
 
 Less strict version of [`match`](#match).
+
+The `W` suffix (short for **W**idening) means that the handler return types will be merged.
 
 **Signature**
 
@@ -768,7 +786,7 @@ Added in v2.12.0
 **Signature**
 
 ```ts
-export declare const fromEither: NaturalTransformation21<'Either', 'IOOption'>
+export declare const fromEither: <A>(fa: Either<unknown, A>) => IOOption<A>
 ```
 
 Added in v2.12.0
@@ -778,7 +796,7 @@ Added in v2.12.0
 **Signature**
 
 ```ts
-export declare const fromIO: NaturalTransformation11<'IO', 'IOOption'>
+export declare const fromIO: <A>(fa: I.IO<A>) => IOOption<A>
 ```
 
 Added in v2.12.0
@@ -788,7 +806,7 @@ Added in v2.12.0
 **Signature**
 
 ```ts
-export declare const fromIOEither: NaturalTransformation21<'IOEither', 'IOOption'>
+export declare const fromIOEither: <A>(fa: IOEither<unknown, A>) => IOOption<A>
 ```
 
 Added in v2.12.0
@@ -798,7 +816,7 @@ Added in v2.12.0
 **Signature**
 
 ```ts
-export declare const fromOption: NaturalTransformation11<'Option', 'IOOption'>
+export declare const fromOption: <A>(fa: O.Option<A>) => IOOption<A>
 ```
 
 Added in v2.12.0
@@ -860,6 +878,19 @@ export declare const bindTo: <N>(name: N) => <A>(fa: IOOption<A>) => IOOption<{ 
 ```
 
 Added in v2.12.0
+
+## let
+
+**Signature**
+
+```ts
+export declare const let: <N, A, B>(
+  name: Exclude<N, keyof A>,
+  f: (a: A) => B
+) => (fa: IOOption<A>) => IOOption<{ readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }>
+```
+
+Added in v2.13.0
 
 ## traverseReadonlyArrayWithIndex
 

@@ -1,24 +1,24 @@
 /**
  * @since 2.0.0
  */
-import { Alt1 } from './Alt.ts'
-import { Applicative as ApplicativeHKT, Applicative1 } from './Applicative.ts'
-import { apFirst as apFirst_, Apply1, apS as apS_, apSecond as apSecond_ } from './Apply.ts'
-import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain.ts'
-import { ChainRec1, tailRec } from './ChainRec.ts'
-import { Comonad1 } from './Comonad.ts'
-import { Eq } from './Eq.ts'
-import { Extend1 } from './Extend.ts'
-import { Foldable1 } from './Foldable.ts'
-import { identity as id, pipe } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor.ts'
-import { HKT } from './HKT.ts'
-import * as _ from './internal.ts'
-import { Monad1 } from './Monad.ts'
-import { Monoid } from './Monoid.ts'
-import { Pointed1 } from './Pointed.ts'
-import { Show } from './Show.ts'
-import { PipeableTraverse1, Traversable1 } from './Traversable.ts'
+import { Alt1 } from './Alt'
+import { Applicative as ApplicativeHKT, Applicative1 } from './Applicative'
+import { apFirst as apFirst_, Apply1, apS as apS_, apSecond as apSecond_ } from './Apply'
+import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain'
+import { ChainRec1, tailRec } from './ChainRec'
+import { Comonad1 } from './Comonad'
+import { Eq } from './Eq'
+import { Extend1 } from './Extend'
+import { Foldable1 } from './Foldable'
+import { identity as id, pipe } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor1 } from './Functor'
+import { HKT } from './HKT'
+import * as _ from './internal'
+import { Monad1 } from './Monad'
+import { Monoid } from './Monoid'
+import { Pointed1 } from './Pointed'
+import { Show } from './Show'
+import { PipeableTraverse1, Traversable1 } from './Traversable'
 
 // -------------------------------------------------------------------------------------
 // model
@@ -81,7 +81,7 @@ export const ap: <A>(fa: Identity<A>) => <B>(fab: Identity<(a: A) => B>) => Iden
  * @category Pointed
  * @since 2.0.0
  */
-export const of: Pointed1<URI>['of'] = id
+export const of: <A>(a: A) => Identity<A> = id
 
 /**
  * Composes computations in sequence, using the return value of one computation to determine the next computation.
@@ -140,21 +140,25 @@ export const reduceRight: <A, B>(b: B, f: (a: A, b: B) => B) => (fa: Identity<A>
 /**
  * @since 2.6.3
  */
-export const traverse: PipeableTraverse1<URI> = <F>(
-  F: ApplicativeHKT<F>
-): (<A, B>(f: (a: A) => HKT<F, B>) => (ta: Identity<A>) => HKT<F, Identity<B>>) => (f) => (ta) => F.map(f(ta), id)
+export const traverse: PipeableTraverse1<URI> =
+  <F>(F: ApplicativeHKT<F>): (<A, B>(f: (a: A) => HKT<F, B>) => (ta: Identity<A>) => HKT<F, Identity<B>>) =>
+  (f) =>
+  (ta) =>
+    F.map(f(ta), id)
 
 /**
  * @since 2.6.3
  */
-export const sequence: Traversable1<URI>['sequence'] = <F>(F: ApplicativeHKT<F>) => <A>(
-  ta: Identity<HKT<F, A>>
-): HKT<F, Identity<A>> => {
-  return F.map(ta, id)
-}
+export const sequence: Traversable1<URI>['sequence'] =
+  <F>(F: ApplicativeHKT<F>) =>
+  <A>(ta: Identity<HKT<F, A>>): HKT<F, Identity<A>> => {
+    return F.map(ta, id)
+  }
 
 /**
  * Less strict version of [`alt`](#alt).
+ *
+ * The `W` suffix (short for **W**idening) means that the return types will be merged.
  *
  * @category Alt
  * @since 2.9.0
@@ -303,7 +307,7 @@ export const Monad: Monad1<URI> = {
  * @category combinators
  * @since 2.0.0
  */
-export const chainFirst = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <A, B>(f: (a: A) => B) => (first: A) => A = /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * @category instances
@@ -376,6 +380,15 @@ export const Do: Identity<{}> = /*#__PURE__*/ of(_.emptyRecord)
  * @since 2.8.0
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
+
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
 
 /**
  * @since 2.8.0

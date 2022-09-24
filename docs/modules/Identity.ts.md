@@ -62,6 +62,7 @@ Added in v2.0.0
   - [apS](#aps)
   - [bind](#bind)
   - [bindTo](#bindto)
+  - [let](#let)
   - [sequence](#sequence)
   - [traverse](#traverse)
 
@@ -85,6 +86,8 @@ Added in v2.0.0
 ## altW
 
 Less strict version of [`alt`](#alt).
+
+The `W` suffix (short for **W**idening) means that the return types will be merged.
 
 **Signature**
 
@@ -516,6 +519,19 @@ export declare const bindTo: <N>(name: N) => <A>(fa: A) => { readonly [K in N]: 
 ```
 
 Added in v2.8.0
+
+## let
+
+**Signature**
+
+```ts
+export declare const let: <N, A, B>(
+  name: Exclude<N, keyof A>,
+  f: (a: A) => B
+) => (fa: A) => { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }
+```
+
+Added in v2.13.0
 
 ## sequence
 

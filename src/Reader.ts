@@ -1,23 +1,60 @@
 /**
+ * The `Reader` monad (also called the Environment monad). Represents a computation, which can read values from a shared environment,
+ * pass values from function to function, and execute sub-computations in a modified environment.
+ * Using `Reader` monad for such computations is often clearer and easier than using the `State` monad.
+ *
+ * In this example the `Reader` monad provides access to variable bindings. `Bindings` are a map of `number` variables.
+ * The variable count contains number of variables in the bindings. You can see how to run a `Reader` monad and retrieve
+ * data from it, how to access the `Reader` data with `ask` and `asks`.
+ *
+ * @example
+ * import { pipe } from 'fp-ts/function'
+ * import * as O from 'fp-ts/Option'
+ * import * as R from 'fp-ts/Reader'
+ * import * as RR from 'fp-ts/ReadonlyRecord'
+ *
+ * interface Bindings extends RR.ReadonlyRecord<string, number> {}
+ *
+ * // The Reader monad, which implements this complicated check.
+ * const isCountCorrect: R.Reader<Bindings, boolean> = pipe(
+ *   R.Do,
+ *   R.bind('count', () => R.asks(lookupVar('count'))),
+ *   R.bind('bindings', () => R.ask()),
+ *   R.map(({ count, bindings }) => count === RR.size(bindings))
+ * )
+ *
+ * // The selector function to use with 'asks'.
+ * // Returns value of the variable with specified name.
+ * const lookupVar = (name: string) => (bindings: Bindings): number =>
+ *   pipe(
+ *     bindings,
+ *     RR.lookup(name),
+ *     O.getOrElse(() => 0)
+ *   )
+ *
+ * const sampleBindings: Bindings = { count: 3, a: 1, b: 2 }
+ *
+ * assert.deepStrictEqual(isCountCorrect(sampleBindings), true)
+ *
  * @since 2.0.0
  */
-import { Applicative2, getApplicativeMonoid } from './Applicative.ts'
-import { apFirst as apFirst_, Apply2, apS as apS_, apSecond as apSecond_, getApplySemigroup } from './Apply.ts'
-import { Category2 } from './Category.ts'
-import { bind as bind_, Chain2, chainFirst as chainFirst_ } from './Chain.ts'
-import { Choice2 } from './Choice.ts'
-import * as E from './Either.ts'
-import { constant, flow, identity, pipe } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor2 } from './Functor.ts'
-import * as _ from './internal.ts'
-import { Monad2 } from './Monad.ts'
-import { Monoid } from './Monoid.ts'
-import { NonEmptyArray } from './NonEmptyArray.ts'
-import { Pointed2 } from './Pointed.ts'
-import { Profunctor2 } from './Profunctor.ts'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
-import { Semigroup } from './Semigroup.ts'
-import { Strong2 } from './Strong.ts'
+import { Applicative2, getApplicativeMonoid } from './Applicative'
+import { apFirst as apFirst_, Apply2, apS as apS_, apSecond as apSecond_, getApplySemigroup } from './Apply'
+import { Category2 } from './Category'
+import { bind as bind_, Chain2, chainFirst as chainFirst_ } from './Chain'
+import { Choice2 } from './Choice'
+import * as E from './Either'
+import { constant, flow, identity, pipe } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor2 } from './Functor'
+import * as _ from './internal'
+import { Monad2 } from './Monad'
+import { Monoid } from './Monoid'
+import { NonEmptyArray } from './NonEmptyArray'
+import { Pointed2 } from './Pointed'
+import { Profunctor2 } from './Profunctor'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
+import { Semigroup } from './Semigroup'
+import { Strong2 } from './Strong'
 
 // -------------------------------------------------------------------------------------
 // model
@@ -59,6 +96,30 @@ export const asks: <R, A>(f: (r: R) => A) => Reader<R, A> = identity
  * Changes the value of the local context during the execution of the action `ma` (similar to `Contravariant`'s
  * `contramap`).
  *
+ * @example
+ * import { pipe } from 'fp-ts/function'
+ * import * as R from 'fp-ts/Reader'
+ * import * as string from 'fp-ts/string'
+ *
+ * const calculateContentLen: R.Reader<string, number> = pipe(
+ *   R.Do,
+ *   R.bind('content', () => R.ask<string>()),
+ *   R.map(({ content }) => string.size(content))
+ * )
+ *
+ * // Calls calculateContentLen after adding a prefix to the Reader content.
+ * const calculateModifiedContentLen: R.Reader<string, number> = pipe(
+ *   calculateContentLen,
+ *   R.local((s) => 'Prefix ' + s)
+ * )
+ *
+ * const s = '12345'
+ *
+ * assert.deepStrictEqual(
+ *   "Modified 's' length: " + calculateModifiedContentLen(s) + '\n' + "Original 's' length: " + calculateContentLen(s),
+ *   "Modified 's' length: 12\nOriginal 's' length: 5"
+ * )
+ *
  * @category combinators
  * @since 2.0.0
  */
@@ -68,10 +129,15 @@ export const local: <R2, R1>(f: (r2: R2) => R1) => <A>(ma: Reader<R1, A>) => Rea
 /**
  * Less strict version of [`asksReader`](#asksreader).
  *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @category combinators
  * @since 2.11.0
  */
-export const asksReaderW = <R1, R2, A>(f: (r1: R1) => Reader<R2, A>): Reader<R1 & R2, A> => (r) => f(r)(r)
+export const asksReaderW =
+  <R1, R2, A>(f: (r1: R1) => Reader<R2, A>): Reader<R1 & R2, A> =>
+  (r) =>
+    f(r)(r)
 
 /**
  * Effectfully accesses the environment.
@@ -110,12 +176,14 @@ export const map: <A, B>(f: (a: A) => B) => <R>(fa: Reader<R, A>) => Reader<R, B
 /**
  * Less strict version of [`ap`](#ap).
  *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @category Apply
  * @since 2.8.0
  */
-export const apW: <R2, A>(fa: Reader<R2, A>) => <R1, B>(fab: Reader<R1, (a: A) => B>) => Reader<R1 & R2, B> = (fa) => (
-  fab
-) => (r) => fab(r)(fa(r))
+export const apW: <R2, A>(fa: Reader<R2, A>) => <R1, B>(fab: Reader<R1, (a: A) => B>) => Reader<R1 & R2, B> =
+  (fa) => (fab) => (r) =>
+    fab(r)(fa(r))
 
 /**
  * Apply a function to an argument under a type constructor.
@@ -129,17 +197,19 @@ export const ap: <R, A>(fa: Reader<R, A>) => <B>(fab: Reader<R, (a: A) => B>) =>
  * @category Pointed
  * @since 2.0.0
  */
-export const of: Pointed2<URI>['of'] = constant
+export const of: <R = unknown, A = never>(a: A) => Reader<R, A> = constant
 
 /**
  * Less strict version of [`chain`](#chain).
  *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @category Monad
  * @since 2.6.0
  */
-export const chainW: <R2, A, B>(f: (a: A) => Reader<R2, B>) => <R1>(ma: Reader<R1, A>) => Reader<R1 & R2, B> = (f) => (
-  fa
-) => (r) => f(fa(r))(r)
+export const chainW: <R2, A, B>(f: (a: A) => Reader<R2, B>) => <R1>(ma: Reader<R1, A>) => Reader<R1 & R2, B> =
+  (f) => (fa) => (r) =>
+    f(fa(r))(r)
 
 /**
  * Composes computations in sequence, using the return value of one computation to determine the next computation.
@@ -152,12 +222,13 @@ export const chain: <A, R, B>(f: (a: A) => Reader<R, B>) => (ma: Reader<R, A>) =
 /**
  * Less strict version of [`flatten`](#flatten).
  *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @category combinators
  * @since 2.11.0
  */
-export const flattenW: <R1, R2, A>(mma: Reader<R1, Reader<R2, A>>) => Reader<R1 & R2, A> = /*#__PURE__*/ chainW(
-  identity
-)
+export const flattenW: <R1, R2, A>(mma: Reader<R1, Reader<R2, A>>) => Reader<R1 & R2, A> =
+  /*#__PURE__*/ chainW(identity)
 
 /**
  * Derivable from `Chain`.
@@ -177,9 +248,9 @@ export const compose: <A, B>(ab: Reader<A, B>) => <C>(bc: Reader<B, C>) => Reade
  * @category Profunctor
  * @since 2.0.0
  */
-export const promap: <E, A, D, B>(f: (d: D) => E, g: (a: A) => B) => (fea: Reader<E, A>) => Reader<D, B> = (f, g) => (
-  fea
-) => (a) => g(fea(f(a)))
+export const promap: <E, A, D, B>(f: (d: D) => E, g: (a: A) => B) => (fea: Reader<E, A>) => Reader<D, B> =
+  (f, g) => (fea) => (a) =>
+    g(fea(f(a)))
 
 /**
  * @category Category
@@ -191,13 +262,19 @@ export const id: Category2<URI>['id'] = () => identity
  * @category Strong
  * @since 2.10.0
  */
-export const first: Strong2<URI>['first'] = (pab) => ([a, c]) => [pab(a), c]
+export const first: Strong2<URI>['first'] =
+  (pab) =>
+  ([a, c]) =>
+    [pab(a), c]
 
 /**
  * @category Strong
  * @since 2.10.0
  */
-export const second: Strong2<URI>['second'] = (pbc) => ([a, b]) => [a, pbc(b)]
+export const second: Strong2<URI>['second'] =
+  (pbc) =>
+  ([a, b]) =>
+    [a, pbc(b)]
 
 /**
  * @category Choice
@@ -282,12 +359,13 @@ export const apFirst = /*#__PURE__*/ apFirst_(Apply)
 /**
  * Less strict version of [`apFirst`](#apfirst).
  *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @category combinators
  * @since 2.12.0
  */
-export const apFirstW: <R2, B>(
-  second: Reader<R2, B>
-) => <R1, A>(first: Reader<R1, A>) => Reader<R1 & R2, A> = apFirst as any
+export const apFirstW: <R2, B>(second: Reader<R2, B>) => <R1, A>(first: Reader<R1, A>) => Reader<R1 & R2, A> =
+  apFirst as any
 
 /**
  * Combine two effectful actions, keeping only the result of the second.
@@ -302,12 +380,13 @@ export const apSecond = /*#__PURE__*/ apSecond_(Apply)
 /**
  * Less strict version of [`apSecond`](#apsecond).
  *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @category combinators
  * @since 2.12.0
  */
-export const apSecondW: <R2, B>(
-  second: Reader<R2, B>
-) => <R1, A>(first: Reader<R1, A>) => Reader<R1 & R2, B> = apSecond as any
+export const apSecondW: <R2, B>(second: Reader<R2, B>) => <R1, A>(first: Reader<R1, A>) => Reader<R1 & R2, B> =
+  apSecond as any
 
 /**
  * @category instances
@@ -352,19 +431,21 @@ export const Monad: Monad2<URI> = {
  * @category combinators
  * @since 2.0.0
  */
-export const chainFirst = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <A, R, B>(f: (a: A) => Reader<R, B>) => (first: Reader<R, A>) => Reader<R, A> =
+  /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * Less strict version of [`chainFirst`](#chainfirst).
+ *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
  *
  * Derivable from `Chain`.
  *
  * @category combinators
  * @since 2.11.0
  */
-export const chainFirstW: <R2, A, B>(
-  f: (a: A) => Reader<R2, B>
-) => <R1>(ma: Reader<R1, A>) => Reader<R1 & R2, A> = chainFirst as any
+export const chainFirstW: <R2, A, B>(f: (a: A) => Reader<R2, B>) => <R1>(ma: Reader<R1, A>) => Reader<R1 & R2, A> =
+  chainFirst as any
 
 /**
  * @category instances
@@ -419,20 +500,30 @@ export const Choice: Choice2<URI> = {
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
 
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
+
 /**
  * @since 2.8.0
  */
 export const bind = /*#__PURE__*/ bind_(Chain)
 
 /**
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @since 2.8.0
  */
 export const bindW: <N extends string, A, R2, B>(
   name: Exclude<N, keyof A>,
   f: (a: A) => Reader<R2, B>
-) => <R1>(
-  fa: Reader<R1, A>
-) => Reader<R1 & R2, { readonly [K in keyof A | N]: K extends keyof A ? A[K] : B }> = bind as any
+) => <R1>(fa: Reader<R1, A>) => Reader<R1 & R2, { readonly [K in keyof A | N]: K extends keyof A ? A[K] : B }> =
+  bind as any
 
 // -------------------------------------------------------------------------------------
 // pipeable sequence S
@@ -449,14 +540,17 @@ export const Do: Reader<unknown, {}> = /*#__PURE__*/ of(_.emptyRecord)
 export const apS = /*#__PURE__*/ apS_(Apply)
 
 /**
+ * Less strict version of [`apS`](#aps).
+ *
+ * The `W` suffix (short for **W**idening) means that the environment types will be merged.
+ *
  * @since 2.8.0
  */
 export const apSW: <A, N extends string, R2, B>(
   name: Exclude<N, keyof A>,
   fb: Reader<R2, B>
-) => <R1>(
-  fa: Reader<R1, A>
-) => Reader<R1 & R2, { readonly [K in keyof A | N]: K extends keyof A ? A[K] : B }> = apS as any
+) => <R1>(fa: Reader<R1, A>) => Reader<R1 & R2, { readonly [K in keyof A | N]: K extends keyof A ? A[K] : B }> =
+  apS as any
 
 // -------------------------------------------------------------------------------------
 // sequence T
@@ -476,15 +570,16 @@ export const ApT: Reader<unknown, readonly []> = /*#__PURE__*/ of(_.emptyReadonl
  *
  * @since 2.11.0
  */
-export const traverseReadonlyNonEmptyArrayWithIndex = <A, R, B>(f: (index: number, a: A) => Reader<R, B>) => (
-  as: ReadonlyNonEmptyArray<A>
-): Reader<R, ReadonlyNonEmptyArray<B>> => (r) => {
-  const out: NonEmptyArray<B> = [f(0, _.head(as))(r)]
-  for (let i = 1; i < as.length; i++) {
-    out.push(f(i, as[i])(r))
+export const traverseReadonlyNonEmptyArrayWithIndex =
+  <A, R, B>(f: (index: number, a: A) => Reader<R, B>) =>
+  (as: ReadonlyNonEmptyArray<A>): Reader<R, ReadonlyNonEmptyArray<B>> =>
+  (r) => {
+    const out: NonEmptyArray<B> = [f(0, _.head(as))(r)]
+    for (let i = 1; i < as.length; i++) {
+      out.push(f(i, as[i])(r))
+    }
+    return out
   }
-  return out
-}
 
 /**
  * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
@@ -515,9 +610,8 @@ export const traverseArray = <R, A, B>(
 /**
  * @since 2.9.0
  */
-export const sequenceArray: <R, A>(
-  arr: ReadonlyArray<Reader<R, A>>
-) => Reader<R, ReadonlyArray<A>> = /*#__PURE__*/ traverseArray(identity)
+export const sequenceArray: <R, A>(arr: ReadonlyArray<Reader<R, A>>) => Reader<R, ReadonlyArray<A>> =
+  /*#__PURE__*/ traverseArray(identity)
 
 // -------------------------------------------------------------------------------------
 // deprecated

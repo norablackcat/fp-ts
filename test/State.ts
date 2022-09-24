@@ -77,9 +77,10 @@ describe('State', () => {
       pipe(
         _.of(1),
         _.bindTo('a'),
-        _.bind('b', () => _.of('b'))
+        _.bind('b', () => _.of('b')),
+        _.let('c', ({ a, b }) => [a, b])
       )('state'),
-      [{ a: 1, b: 'b' }, 'state']
+      [{ a: 1, b: 'b', c: [1, 'b'] }, 'state']
     )
   })
 
@@ -98,7 +99,10 @@ describe('State', () => {
 
     // old
     it('sequenceArray', () => {
-      const append = (n: number): _.State<ReadonlyArray<number>, number> => (s) => [n, [...s, n]]
+      const append =
+        (n: number): _.State<ReadonlyArray<number>, number> =>
+        (s) =>
+          [n, [...s, n]]
       U.deepStrictEqual(pipe([append(1), append(2)], _.sequenceArray)([]), [
         [1, 2],
         [1, 2]

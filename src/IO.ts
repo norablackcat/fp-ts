@@ -6,26 +6,28 @@
  * ```
  *
  * `IO<A>` represents a non-deterministic synchronous computation that can cause side effects, yields a value of
- * type `A` and **never fails**. If you want to represent a synchronous computation that may fail, please see
- * `IOEither`.
+ * type `A` and **never fails**.
+ *
+ * If you want to represent a synchronous computation that may fail, please see `IOEither`.
+ * If you want to represent a synchronous computation that may yield nothing, please see `IOOption`.
  *
  * @since 2.0.0
  */
-import { Applicative1, getApplicativeMonoid } from './Applicative.ts'
-import { apFirst as apFirst_, Apply1, apS as apS_, apSecond as apSecond_, getApplySemigroup } from './Apply.ts'
-import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain.ts'
-import { ChainRec1 } from './ChainRec.ts'
-import { FromIO1 } from './FromIO.ts'
-import { constant, identity } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor.ts'
-import * as _ from './internal.ts'
-import { Monad1 } from './Monad.ts'
-import { MonadIO1 } from './MonadIO.ts'
-import { Monoid } from './Monoid.ts'
-import { NonEmptyArray } from './NonEmptyArray.ts'
-import { Pointed1 } from './Pointed.ts'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
-import { Semigroup } from './Semigroup.ts'
+import { Applicative1, getApplicativeMonoid } from './Applicative'
+import { apFirst as apFirst_, Apply1, apS as apS_, apSecond as apSecond_, getApplySemigroup } from './Apply'
+import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain'
+import { ChainRec1 } from './ChainRec'
+import { FromIO1 } from './FromIO'
+import { constant, identity } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor1 } from './Functor'
+import * as _ from './internal'
+import { Monad1 } from './Monad'
+import { MonadIO1 } from './MonadIO'
+import { Monoid } from './Monoid'
+import { NonEmptyArray } from './NonEmptyArray'
+import { Pointed1 } from './Pointed'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
+import { Semigroup } from './Semigroup'
 
 // -------------------------------------------------------------------------------------
 // model
@@ -79,7 +81,7 @@ export const ap: <A>(fa: IO<A>) => <B>(fab: IO<(a: A) => B>) => IO<B> = (fa) => 
  * @category Pointed
  * @since 2.0.0
  */
-export const of: Pointed1<URI>['of'] = constant
+export const of: <A>(a: A) => IO<A> = constant
 
 /**
  * Composes computations in sequence, using the return value of one computation to determine the next computation.
@@ -218,14 +220,14 @@ export const Monad: Monad1<URI> = {
  * @category combinators
  * @since 2.0.0
  */
-export const chainFirst = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <A, B>(f: (a: A) => IO<B>) => (first: IO<A>) => IO<A> = /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * @category constructors
  * @since 2.7.0
  * @deprecated
  */
-export const fromIO: FromIO1<URI>['fromIO'] = identity
+export const fromIO: <A>(fa: IO<A>) => IO<A> = identity
 
 /**
  * @category instances
@@ -275,6 +277,15 @@ export const Do: IO<{}> = /*#__PURE__*/ of(_.emptyRecord)
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
 
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
+
 /**
  * @since 2.8.0
  */
@@ -307,15 +318,16 @@ export const ApT: IO<readonly []> = /*#__PURE__*/ of(_.emptyReadonlyArray)
  *
  * @since 2.11.0
  */
-export const traverseReadonlyNonEmptyArrayWithIndex = <A, B>(f: (index: number, a: A) => IO<B>) => (
-  as: ReadonlyNonEmptyArray<A>
-): IO<ReadonlyNonEmptyArray<B>> => () => {
-  const out: NonEmptyArray<B> = [f(0, _.head(as))()]
-  for (let i = 1; i < as.length; i++) {
-    out.push(f(i, as[i])())
+export const traverseReadonlyNonEmptyArrayWithIndex =
+  <A, B>(f: (index: number, a: A) => IO<B>) =>
+  (as: ReadonlyNonEmptyArray<A>): IO<ReadonlyNonEmptyArray<B>> =>
+  () => {
+    const out: NonEmptyArray<B> = [f(0, _.head(as))()]
+    for (let i = 1; i < as.length; i++) {
+      out.push(f(i, as[i])())
+    }
+    return out
   }
-  return out
-}
 
 /**
  * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
@@ -345,9 +357,8 @@ export const traverseArray = <A, B>(f: (a: A) => IO<B>): ((as: ReadonlyArray<A>)
 /**
  * @since 2.9.0
  */
-export const sequenceArray: <A>(arr: ReadonlyArray<IO<A>>) => IO<ReadonlyArray<A>> = /*#__PURE__*/ traverseArray(
-  identity
-)
+export const sequenceArray: <A>(arr: ReadonlyArray<IO<A>>) => IO<ReadonlyArray<A>> =
+  /*#__PURE__*/ traverseArray(identity)
 
 // -------------------------------------------------------------------------------------
 // deprecated

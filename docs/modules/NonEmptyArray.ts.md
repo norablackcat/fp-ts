@@ -131,6 +131,7 @@ Added in v2.0.0
   - [init](#init)
   - [intercalate](#intercalate)
   - [last](#last)
+  - [let](#let)
   - [max](#max)
   - [min](#min)
   - [modifyHead](#modifyhead)
@@ -150,10 +151,27 @@ Added in v2.0.0
 Identifies an associative operation on a type constructor. It is similar to `Semigroup`, except that it applies to
 types of kind `* -> *`.
 
+In case of `NonEmptyArray` concatenates the inputs into a single array.
+
 **Signature**
 
 ```ts
 export declare const alt: <A>(that: Lazy<NonEmptyArray<A>>) => (fa: NonEmptyArray<A>) => NonEmptyArray<A>
+```
+
+**Example**
+
+```ts
+import * as NEA from 'fp-ts/NonEmptyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    NEA.alt(() => [4, 5])
+  ),
+  [1, 2, 3, 4, 5]
+)
 ```
 
 Added in v2.6.2
@@ -162,10 +180,27 @@ Added in v2.6.2
 
 Less strict version of [`alt`](#alt).
 
+The `W` suffix (short for **W**idening) means that the return types will be merged.
+
 **Signature**
 
 ```ts
 export declare const altW: <B>(that: Lazy<NonEmptyArray<B>>) => <A>(as: NonEmptyArray<A>) => NonEmptyArray<B | A>
+```
+
+**Example**
+
+```ts
+import * as NEA from 'fp-ts/NonEmptyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3] as NEA.NonEmptyArray<number>,
+    NEA.altW(() => ['a', 'b'])
+  ),
+  [1, 2, 3, 'a', 'b']
+)
 ```
 
 Added in v2.9.0
@@ -277,6 +312,21 @@ Composes computations in sequence, using the return value of one computation to 
 
 ```ts
 export declare const chain: <A, B>(f: (a: A) => NonEmptyArray<B>) => (ma: NonEmptyArray<A>) => NonEmptyArray<B>
+```
+
+**Example**
+
+```ts
+import * as NEA from 'fp-ts/NonEmptyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    NEA.chain((n) => [`a${n}`, `b${n}`])
+  ),
+  ['a1', 'b1', 'a2', 'b2', 'a3', 'b3']
+)
 ```
 
 Added in v2.0.0
@@ -479,9 +529,7 @@ Group equal, consecutive elements of an array into non empty arrays.
 **Signature**
 
 ```ts
-export declare function group<B>(
-  E: Eq<B>
-): {
+export declare function group<B>(E: Eq<B>): {
   <A extends B>(as: NonEmptyArray<A>): NonEmptyArray<NonEmptyArray<A>>
   <A extends B>(as: Array<A>): Array<NonEmptyArray<A>>
 }
@@ -828,9 +876,7 @@ This is just `sort` followed by `group`.
 **Signature**
 
 ```ts
-export declare function groupSort<B>(
-  O: Ord<B>
-): {
+export declare function groupSort<B>(O: Ord<B>): {
   <A extends B>(as: NonEmptyArray<A>): NonEmptyArray<NonEmptyArray<A>>
   <A extends B>(as: Array<A>): Array<NonEmptyArray<A>>
 }
@@ -1413,6 +1459,19 @@ export declare const last: <A>(nea: NonEmptyArray<A>) => A
 ```
 
 Added in v2.0.0
+
+## let
+
+**Signature**
+
+```ts
+export declare const let: <N, A, B>(
+  name: Exclude<N, keyof A>,
+  f: (a: A) => B
+) => (fa: NonEmptyArray<A>) => NonEmptyArray<{ readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }>
+```
+
+Added in v2.13.0
 
 ## max
 

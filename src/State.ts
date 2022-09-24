@@ -1,17 +1,17 @@
 /**
  * @since 2.0.0
  */
-import { Applicative2 } from './Applicative.ts'
-import { apFirst as apFirst_, Apply2, apS as apS_, apSecond as apSecond_ } from './Apply.ts'
-import { bind as bind_, Chain2, chainFirst as chainFirst_ } from './Chain.ts'
-import { FromState2 } from './FromState.ts'
-import { identity, pipe } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor2 } from './Functor.ts'
-import { Monad2 } from './Monad.ts'
-import { NonEmptyArray } from './NonEmptyArray.ts'
-import { Pointed2 } from './Pointed.ts'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
-import * as _ from './internal.ts'
+import { Applicative2 } from './Applicative'
+import { apFirst as apFirst_, Apply2, apS as apS_, apSecond as apSecond_ } from './Apply'
+import { bind as bind_, Chain2, chainFirst as chainFirst_ } from './Chain'
+import { FromState2 } from './FromState'
+import { identity, pipe } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor2 } from './Functor'
+import { Monad2 } from './Monad'
+import { NonEmptyArray } from './NonEmptyArray'
+import { Pointed2 } from './Pointed'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
+import * as _ from './internal'
 
 // -------------------------------------------------------------------------------------
 // model
@@ -104,7 +104,7 @@ export const ap: <E, A>(fa: State<E, A>) => <B>(fab: State<E, (a: A) => B>) => S
  * @category Pointed
  * @since 2.0.0
  */
-export const of: Pointed2<URI>['of'] = (a) => (s) => [a, s]
+export const of: <S, A>(a: A) => State<S, A> = (a) => (s) => [a, s]
 
 /**
  * Composes computations in sequence, using the return value of one computation to determine the next computation.
@@ -246,9 +246,8 @@ export const Monad: Monad2<URI> = {
  * @category combinators
  * @since 2.0.0
  */
-export const chainFirst: <S, A, B>(
-  f: (a: A) => State<S, B>
-) => (ma: State<S, A>) => State<S, A> = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <S, A, B>(f: (a: A) => State<S, B>) => (ma: State<S, A>) => State<S, A> =
+  /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * @category instances
@@ -267,14 +266,20 @@ export const FromState: FromState2<URI> = {
  *
  * @since 2.8.0
  */
-export const evaluate = <S>(s: S) => <A>(ma: State<S, A>): A => ma(s)[0]
+export const evaluate =
+  <S>(s: S) =>
+  <A>(ma: State<S, A>): A =>
+    ma(s)[0]
 
 /**
  * Run a computation in the `State` monad discarding the result
  *
  * @since 2.8.0
  */
-export const execute = <S>(s: S) => <A>(ma: State<S, A>): S => ma(s)[1]
+export const execute =
+  <S>(s: S) =>
+  <A>(ma: State<S, A>): S =>
+    ma(s)[1]
 
 // -------------------------------------------------------------------------------------
 // do notation
@@ -284,6 +289,15 @@ export const execute = <S>(s: S) => <A>(ma: State<S, A>): S => ma(s)[1]
  * @since 2.8.0
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
+
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
 
 /**
  * @since 2.8.0
@@ -308,19 +322,20 @@ export const apS = /*#__PURE__*/ apS_(Apply)
  *
  * @since 2.11.0
  */
-export const traverseReadonlyNonEmptyArrayWithIndex = <A, S, B>(f: (index: number, a: A) => State<S, B>) => (
-  as: ReadonlyNonEmptyArray<A>
-): State<S, ReadonlyNonEmptyArray<B>> => (s) => {
-  const [b, s2] = f(0, _.head(as))(s)
-  const bs: NonEmptyArray<B> = [b]
-  let out = s2
-  for (let i = 1; i < as.length; i++) {
-    const [b, s2] = f(i, as[i])(out)
-    bs.push(b)
-    out = s2
+export const traverseReadonlyNonEmptyArrayWithIndex =
+  <A, S, B>(f: (index: number, a: A) => State<S, B>) =>
+  (as: ReadonlyNonEmptyArray<A>): State<S, ReadonlyNonEmptyArray<B>> =>
+  (s) => {
+    const [b, s2] = f(0, _.head(as))(s)
+    const bs: NonEmptyArray<B> = [b]
+    let out = s2
+    for (let i = 1; i < as.length; i++) {
+      const [b, s2] = f(i, as[i])(out)
+      bs.push(b)
+      out = s2
+    }
+    return [bs, out]
   }
-  return [bs, out]
-}
 
 /**
  * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
@@ -351,9 +366,8 @@ export const traverseArray = <A, S, B>(
 /**
  * @since 2.9.0
  */
-export const sequenceArray: <S, A>(
-  arr: ReadonlyArray<State<S, A>>
-) => State<S, ReadonlyArray<A>> = /*#__PURE__*/ traverseArray(identity)
+export const sequenceArray: <S, A>(arr: ReadonlyArray<State<S, A>>) => State<S, ReadonlyArray<A>> =
+  /*#__PURE__*/ traverseArray(identity)
 
 // -------------------------------------------------------------------------------------
 // deprecated

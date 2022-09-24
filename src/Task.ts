@@ -17,21 +17,22 @@ import {
   apS as apS_,
   apSecond as apSecond_,
   getApplySemigroup as getApplySemigroup_
-} from './Apply.ts'
-import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain.ts'
-import { chainFirstIOK as chainFirstIOK_, chainIOK as chainIOK_, FromIO1, fromIOK as fromIOK_ } from './FromIO.ts'
-import { FromTask1 } from './FromTask.ts'
-import { identity, pipe } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor.ts'
-import * as _ from './internal.ts'
-import { Monad1 } from './Monad.ts'
-import { MonadIO1 } from './MonadIO.ts'
-import { MonadTask1 } from './MonadTask.ts'
-import { Monoid } from './Monoid.ts'
-import { NonEmptyArray } from './NonEmptyArray.ts'
-import { Pointed1 } from './Pointed.ts'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
-import { Semigroup } from './Semigroup.ts'
+} from './Apply'
+import { bind as bind_, Chain1, chainFirst as chainFirst_ } from './Chain'
+import { chainFirstIOK as chainFirstIOK_, chainIOK as chainIOK_, FromIO1, fromIOK as fromIOK_ } from './FromIO'
+import { FromTask1 } from './FromTask'
+import { identity, pipe } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor1 } from './Functor'
+import * as _ from './internal'
+import { Monad1 } from './Monad'
+import { MonadIO1 } from './MonadIO'
+import { MonadTask1 } from './MonadTask'
+import { Monoid } from './Monoid'
+import { NonEmptyArray } from './NonEmptyArray'
+import { Pointed1 } from './Pointed'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
+import { Semigroup } from './Semigroup'
+import { IO } from './IO'
 
 // -------------------------------------------------------------------------------------
 // model
@@ -53,7 +54,7 @@ export interface Task<A> {
  * @category natural transformations
  * @since 2.0.0
  */
-export const fromIO: FromIO1<URI>['fromIO'] = (ma) => () => Promise.resolve().then(ma)
+export const fromIO: <A>(fa: IO<A>) => Task<A> = (ma) => () => Promise.resolve().then(ma)
 
 // -------------------------------------------------------------------------------------
 // combinators
@@ -135,7 +136,7 @@ export const ap: <A>(fa: Task<A>) => <B>(fab: Task<(a: A) => B>) => Task<B> = (f
  * @category Pointed
  * @since 2.0.0
  */
-export const of: Pointed1<URI>['of'] = (a) => () => Promise.resolve(a)
+export const of: <A>(a: A) => Task<A> = (a) => () => Promise.resolve(a)
 
 /**
  * Composes computations in sequence, using the return value of one computation to determine the next computation.
@@ -232,6 +233,8 @@ export const Pointed: Pointed1<URI> = {
 }
 
 /**
+ * Runs computations in parallel.
+ *
  * @category instances
  * @since 2.10.0
  */
@@ -262,6 +265,8 @@ export const apFirst = /*#__PURE__*/ apFirst_(ApplyPar)
 export const apSecond = /*#__PURE__*/ apSecond_(ApplyPar)
 
 /**
+ * Runs computations in parallel.
+ *
  * @category instances
  * @since 2.7.0
  */
@@ -273,6 +278,8 @@ export const ApplicativePar: Applicative1<URI> = {
 }
 
 /**
+ * Runs computations sequentially.
+ *
  * @category instances
  * @since 2.10.0
  */
@@ -283,6 +290,8 @@ export const ApplySeq: Apply1<URI> = {
 }
 
 /**
+ * Runs computations sequentially.
+ *
  * @category instances
  * @since 2.7.0
  */
@@ -334,7 +343,7 @@ export const MonadIO: MonadIO1<URI> = {
  * @since 2.7.0
  * @deprecated
  */
-export const fromTask: FromTask1<URI>['fromTask'] = identity
+export const fromTask: <A>(fa: Task<A>) => Task<A> = identity
 
 /**
  * @category instances
@@ -359,7 +368,7 @@ export const MonadTask: MonadTask1<URI> = {
  * @category combinators
  * @since 2.0.0
  */
-export const chainFirst = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <A, B>(f: (a: A) => Task<B>) => (first: Task<A>) => Task<A> = /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * @category instances
@@ -374,19 +383,26 @@ export const FromIO: FromIO1<URI> = {
  * @category combinators
  * @since 2.4.0
  */
-export const fromIOK = /*#__PURE__*/ fromIOK_(FromIO)
+export const fromIOK: <A extends ReadonlyArray<unknown>, B>(f: (...a: A) => IO<B>) => (...a: A) => Task<B> =
+  /*#__PURE__*/ fromIOK_(FromIO)
 
 /**
  * @category combinators
  * @since 2.4.0
  */
-export const chainIOK = /*#__PURE__*/ chainIOK_(FromIO, Chain)
+export const chainIOK: <A, B>(f: (a: A) => IO<B>) => (first: Task<A>) => Task<B> = /*#__PURE__*/ chainIOK_(
+  FromIO,
+  Chain
+)
 
 /**
  * @category combinators
  * @since 2.10.0
  */
-export const chainFirstIOK = /*#__PURE__*/ chainFirstIOK_(FromIO, Chain)
+export const chainFirstIOK: <A, B>(f: (a: A) => IO<B>) => (first: Task<A>) => Task<A> = /*#__PURE__*/ chainFirstIOK_(
+  FromIO,
+  Chain
+)
 
 /**
  * @category instances
@@ -423,6 +439,15 @@ export const Do: Task<{}> = /*#__PURE__*/ of(_.emptyRecord)
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
 
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
+
 /**
  * @since 2.8.0
  */
@@ -455,9 +480,11 @@ export const ApT: Task<readonly []> = /*#__PURE__*/ of(_.emptyReadonlyArray)
  *
  * @since 2.11.0
  */
-export const traverseReadonlyNonEmptyArrayWithIndex = <A, B>(f: (index: number, a: A) => Task<B>) => (
-  as: ReadonlyNonEmptyArray<A>
-): Task<ReadonlyNonEmptyArray<B>> => () => Promise.all(as.map((a, i) => Promise.resolve().then(() => f(i, a)()))) as any
+export const traverseReadonlyNonEmptyArrayWithIndex =
+  <A, B>(f: (index: number, a: A) => Task<B>) =>
+  (as: ReadonlyNonEmptyArray<A>): Task<ReadonlyNonEmptyArray<B>> =>
+  () =>
+    Promise.all(as.map((a, i) => Promise.resolve().then(() => f(i, a)()))) as any
 
 /**
  * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativePar)`.
@@ -476,23 +503,24 @@ export const traverseReadonlyArrayWithIndex = <A, B>(
  *
  * @since 2.11.0
  */
-export const traverseReadonlyNonEmptyArrayWithIndexSeq = <A, B>(f: (index: number, a: A) => Task<B>) => (
-  as: ReadonlyNonEmptyArray<A>
-): Task<ReadonlyNonEmptyArray<B>> => () =>
-  _.tail(as).reduce<Promise<NonEmptyArray<B>>>(
-    (acc, a, i) =>
-      acc.then((bs) =>
-        Promise.resolve()
-          .then(f(i + 1, a))
-          .then((b) => {
-            bs.push(b)
-            return bs
-          })
-      ),
-    Promise.resolve()
-      .then(f(0, _.head(as)))
-      .then(_.singleton)
-  )
+export const traverseReadonlyNonEmptyArrayWithIndexSeq =
+  <A, B>(f: (index: number, a: A) => Task<B>) =>
+  (as: ReadonlyNonEmptyArray<A>): Task<ReadonlyNonEmptyArray<B>> =>
+  () =>
+    _.tail(as).reduce<Promise<NonEmptyArray<B>>>(
+      (acc, a, i) =>
+        acc.then((bs) =>
+          Promise.resolve()
+            .then(f(i + 1, a))
+            .then((b) => {
+              bs.push(b)
+              return bs
+            })
+        ),
+      Promise.resolve()
+        .then(f(0, _.head(as)))
+        .then(_.singleton)
+    )
 
 /**
  * Equivalent to `ReadonlyArray#traverseWithIndex(ApplicativeSeq)`.
@@ -522,9 +550,8 @@ export const traverseArray = <A, B>(f: (a: A) => Task<B>): ((as: ReadonlyArray<A
 /**
  * @since 2.9.0
  */
-export const sequenceArray: <A>(arr: ReadonlyArray<Task<A>>) => Task<ReadonlyArray<A>> = /*#__PURE__*/ traverseArray(
-  identity
-)
+export const sequenceArray: <A>(arr: ReadonlyArray<Task<A>>) => Task<ReadonlyArray<A>> =
+  /*#__PURE__*/ traverseArray(identity)
 
 /**
  * @since 2.9.0
@@ -542,9 +569,8 @@ export const traverseSeqArray = <A, B>(f: (a: A) => Task<B>): ((as: ReadonlyArra
 /**
  * @since 2.9.0
  */
-export const sequenceSeqArray: <A>(
-  arr: ReadonlyArray<Task<A>>
-) => Task<ReadonlyArray<A>> = /*#__PURE__*/ traverseSeqArray(identity)
+export const sequenceSeqArray: <A>(arr: ReadonlyArray<Task<A>>) => Task<ReadonlyArray<A>> =
+  /*#__PURE__*/ traverseSeqArray(identity)
 
 // -------------------------------------------------------------------------------------
 // deprecated

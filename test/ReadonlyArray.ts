@@ -1034,7 +1034,7 @@ describe('ReadonlyArray', () => {
         fc.property(
           fc.array(fc.integer()).filter((xs) => xs.length % 2 === 0), // Ensures `xs.length` is even
           fc.array(fc.integer()),
-          fc.integer(1, 1).map((x) => x * 2), // Generates `n` to be even so that it evenly divides `xs`
+          fc.integer({ min: 1, max: 1 }).map((x) => x * 2), // Generates `n` to be even so that it evenly divides `xs`
           (xs, ys, n) => {
             const as = _.chunksOf(n)(xs).concat(_.chunksOf(n)(ys))
             const bs = _.chunksOf(n)(xs.concat(ys))
@@ -1222,9 +1222,10 @@ describe('ReadonlyArray', () => {
       pipe(
         _.of(1),
         _.bindTo('a'),
-        _.bind('b', () => _.of('b'))
+        _.bind('b', () => _.of('b')),
+        _.let('c', ({ a, b }) => [a, b])
       ),
-      [{ a: 1, b: 'b' }]
+      [{ a: 1, b: 'b', c: [1, 'b'] }]
     )
   })
 

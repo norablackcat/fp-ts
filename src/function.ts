@@ -15,14 +15,16 @@ import { Semiring } from './Semiring.ts'
  * @category instances
  * @since 2.10.0
  */
-export const getBooleanAlgebra = <B>(B: BooleanAlgebra<B>) => <A = never>(): BooleanAlgebra<(a: A) => B> => ({
-  meet: (x, y) => (a) => B.meet(x(a), y(a)),
-  join: (x, y) => (a) => B.join(x(a), y(a)),
-  zero: () => B.zero,
-  one: () => B.one,
-  implies: (x, y) => (a) => B.implies(x(a), y(a)),
-  not: (x) => (a) => B.not(x(a))
-})
+export const getBooleanAlgebra =
+  <B>(B: BooleanAlgebra<B>) =>
+  <A = never>(): BooleanAlgebra<(a: A) => B> => ({
+    meet: (x, y) => (a) => B.meet(x(a), y(a)),
+    join: (x, y) => (a) => B.join(x(a), y(a)),
+    zero: () => B.zero,
+    one: () => B.one,
+    implies: (x, y) => (a) => B.implies(x(a), y(a)),
+    not: (x) => (a) => B.not(x(a))
+  })
 
 /**
  * Unary functions form a semigroup as long as you can provide a semigroup for the codomain.
@@ -47,9 +49,11 @@ export const getBooleanAlgebra = <B>(B: BooleanAlgebra<B>) => <A = never>(): Boo
  * @category instances
  * @since 2.10.0
  */
-export const getSemigroup = <S>(S: Semigroup<S>) => <A = never>(): Semigroup<(a: A) => S> => ({
-  concat: (f, g) => (a) => S.concat(f(a), g(a))
-})
+export const getSemigroup =
+  <S>(S: Semigroup<S>) =>
+  <A = never>(): Semigroup<(a: A) => S> => ({
+    concat: (f, g) => (a) => S.concat(f(a), g(a))
+  })
 
 /**
  * Unary functions form a monoid as long as you can provide a monoid for the codomain.
@@ -116,7 +120,10 @@ export const getRing = <A, B>(R: Ring<B>): Ring<(a: A) => B> => {
 /**
  * @since 2.11.0
  */
-export const apply = <A>(a: A) => <B>(f: (a: A) => B): B => f(a)
+export const apply =
+  <A>(a: A) =>
+  <B>(f: (a: A) => B): B =>
+    f(a)
 
 /**
  * A *thunk*
@@ -194,12 +201,28 @@ export const constUndefined: Lazy<undefined> = /*#__PURE__*/ constant(undefined)
 export const constVoid: Lazy<void> = constUndefined
 
 /**
- * Flips the order of the arguments of a function of two arguments.
+ * Flips the arguments of a curried function.
+ *
+ * @example
+ * import { flip } from 'fp-ts/function'
+ *
+ * const f = (a: number) => (b: string) => a - b.length
+ *
+ * assert.strictEqual(flip(f)('aaa')(2), -1)
  *
  * @since 2.0.0
  */
-export function flip<A, B, C>(f: (a: A, b: B) => C): (b: B, a: A) => C {
-  return (b, a) => f(a, b)
+export function flip<A, B, C>(f: (a: A) => (b: B) => C): (b: B) => (a: A) => C
+/** @deprecated */
+export function flip<A, B, C>(f: (a: A, b: B) => C): (b: B, a: A) => C
+export function flip(f: Function): Function {
+  return (...args: Array<any>) => {
+    if (args.length > 1) {
+      return f(args[1], args[0])
+    }
+
+    return (a: any) => f(a)(args[0])
+  }
 }
 
 /**

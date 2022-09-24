@@ -10,6 +10,54 @@
  * An option could be looked at as a collection or foldable structure with either one or zero elements.
  * Another way to look at `Option` is: it represents the effect of a possibly failing computation.
  *
+ *
+ * @example
+ * import * as O from 'fp-ts/Option'
+ * import { pipe } from 'fp-ts/function'
+ *
+ * const double = (n: number): number => n * 2
+ *
+ * export const imperative = (as: ReadonlyArray<number>): string => {
+ *   const head = (as: ReadonlyArray<number>): number => {
+ *     if (as.length === 0) {
+ *       throw new Error()
+ *     }
+ *     return as[0]
+ *   }
+ *   const inverse = (n: number): number => {
+ *     if (n === 0) {
+ *       throw new Error()
+ *     }
+ *     return 1 / n
+ *   }
+ *   try {
+ *     return `Result is ${inverse(double(head(as)))}`
+ *   } catch (e) {
+ *     return 'no result'
+ *   }
+ * }
+ *
+ * export const functional = (as: ReadonlyArray<number>): string => {
+ *   const head = <A>(as: ReadonlyArray<A>): O.Option<A> =>
+ *     as.length === 0 ? O.none : O.some(as[0])
+ *   const inverse = (n: number): O.Option<number> =>
+ *     n === 0 ? O.none : O.some(1 / n)
+ *   return pipe(
+ *     as,
+ *     head,
+ *     O.map(double),
+ *     O.chain(inverse),
+ *     O.match(
+ *       () => 'no result', // onNone handler
+ *       (head) => `Result is ${head}` // onSome handler
+ *     )
+ *   )
+ * }
+ *
+ * assert.deepStrictEqual(imperative([1, 2, 3]), functional([1, 2, 3]))
+ * assert.deepStrictEqual(imperative([]), functional([]))
+ * assert.deepStrictEqual(imperative([0]), functional([0]))
+ *
  * @since 2.0.0
  */
 import { Alt1 } from './Alt.ts'
@@ -34,26 +82,26 @@ import {
   FromEither1,
   fromEitherK as fromEitherK_,
   chainFirstEitherK as chainFirstEitherK_
-} from './FromEither.ts'
-import { constNull, constUndefined, flow, identity, Lazy, pipe } from './function.ts'
-import { bindTo as bindTo_, flap as flap_, Functor1 } from './Functor.ts'
-import { HKT } from './HKT.ts'
-import * as _ from './internal.ts'
-import { Monad1 } from './Monad.ts'
-import { MonadThrow1 } from './MonadThrow.ts'
-import { Monoid } from './Monoid.ts'
-import { NonEmptyArray } from './NonEmptyArray.ts'
-import { Ord } from './Ord.ts'
-import { Pointed1 } from './Pointed.ts'
-import { not, Predicate } from './Predicate.ts'
-import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray.ts'
-import { Refinement } from './Refinement.ts'
-import { first, last, Semigroup } from './Semigroup.ts'
-import { Separated, separated } from './Separated.ts'
-import { Show } from './Show.ts'
-import { PipeableTraverse1, Traversable1 } from './Traversable.ts'
-import { PipeableWilt1, PipeableWither1, wiltDefault, Witherable1, witherDefault } from './Witherable.ts'
-import { Zero1, guard as guard_ } from './Zero.ts'
+} from './FromEither'
+import { constNull, constUndefined, flow, identity, Lazy, pipe } from './function'
+import { let as let__, bindTo as bindTo_, flap as flap_, Functor1 } from './Functor'
+import { HKT } from './HKT'
+import * as _ from './internal'
+import { Monad1 } from './Monad'
+import { MonadThrow1 } from './MonadThrow'
+import { Monoid } from './Monoid'
+import { NonEmptyArray } from './NonEmptyArray'
+import { Ord } from './Ord'
+import { Pointed1 } from './Pointed'
+import { not, Predicate } from './Predicate'
+import { ReadonlyNonEmptyArray } from './ReadonlyNonEmptyArray'
+import { Refinement } from './Refinement'
+import { first, last, Semigroup } from './Semigroup'
+import { Separated, separated } from './Separated'
+import { Show } from './Show'
+import { PipeableTraverse1, Traversable1 } from './Traversable'
+import { PipeableWilt1, PipeableWither1, wiltDefault, Witherable1, witherDefault } from './Witherable'
+import { Zero1, guard as guard_ } from './Zero'
 
 // -------------------------------------------------------------------------------------
 // model
@@ -310,7 +358,7 @@ export const Functor: Functor1<URI> = {
  * @category instance operations
  * @since 2.7.0
  */
-export const of: Pointed1<URI>['of'] = some
+export const of: <A>(a: A) => Option<A> = some
 
 /**
  * @category instances
@@ -416,6 +464,8 @@ export const Foldable: Foldable1<URI> = {
 /**
  * Less strict version of [`alt`](#alt).
  *
+ * The `W` suffix (short for **W**idening) means that the return types will be merged.
+ *
  * @category instance operations
  * @since 2.9.0
  */
@@ -428,14 +478,28 @@ export const altW: <B>(that: Lazy<Option<B>>) => <A>(fa: Option<A>) => Option<A 
  *
  * In case of `Option` returns the left-most non-`None` value.
  *
+ * | x       | y       | pipe(x, alt(() => y) |
+ * | ------- | ------- | -------------------- |
+ * | none    | none    | none                 |
+ * | some(a) | none    | some(a)              |
+ * | none    | some(b) | some(b)              |
+ * | some(a) | some(b) | some(a)              |
+ *
  * @example
  * import * as O from 'fp-ts/Option'
  * import { pipe } from 'fp-ts/function'
  *
  * assert.deepStrictEqual(
  *   pipe(
+ *     O.none,
+ *     O.alt(() => O.none)
+ *   ),
+ *   O.none
+ * )
+ * assert.deepStrictEqual(
+ *   pipe(
  *     O.some('a'),
- *     O.alt(() => O.some('b'))
+ *     O.alt<string>(() => O.none)
  *   ),
  *   O.some('a')
  * )
@@ -445,6 +509,13 @@ export const altW: <B>(that: Lazy<Option<B>>) => <A>(fa: Option<A>) => Option<A 
  *     O.alt(() => O.some('b'))
  *   ),
  *   O.some('b')
+ * )
+ * assert.deepStrictEqual(
+ *   pipe(
+ *     O.some('a'),
+ *     O.alt(() => O.some('b'))
+ *   ),
+ *   O.some('a')
  * )
  *
  * @category instance operations
@@ -466,7 +537,7 @@ export const Alt: Alt1<URI> = {
  * @category instance operations
  * @since 2.7.0
  */
-export const zero: Zero1<URI>['zero'] = () => none
+export const zero: <A>() => Option<A> = () => none
 
 /**
  * @category instances
@@ -546,7 +617,10 @@ export const filter: {
   <A, B extends A>(refinement: Refinement<A, B>): (fa: Option<A>) => Option<B>
   <A>(predicate: Predicate<A>): <B extends A>(fb: Option<B>) => Option<B>
   <A>(predicate: Predicate<A>): (fa: Option<A>) => Option<A>
-} = <A>(predicate: Predicate<A>) => (fa: Option<A>) => (isNone(fa) ? none : predicate(fa.value) ? fa : none)
+} =
+  <A>(predicate: Predicate<A>) =>
+  (fa: Option<A>) =>
+    isNone(fa) ? none : predicate(fa.value) ? fa : none
 
 /**
  * @category instance operations
@@ -563,7 +637,10 @@ export const partition: {
   <A, B extends A>(refinement: Refinement<A, B>): (fa: Option<A>) => Separated<Option<A>, Option<B>>
   <A>(predicate: Predicate<A>): <B extends A>(fb: Option<B>) => Separated<Option<B>, Option<B>>
   <A>(predicate: Predicate<A>): (fa: Option<A>) => Separated<Option<A>, Option<A>>
-} = <A>(predicate: Predicate<A>) => (fa: Option<A>) => separated(_filter(fa, not(predicate)), _filter(fa, predicate))
+} =
+  <A>(predicate: Predicate<A>) =>
+  (fa: Option<A>) =>
+    separated(_filter(fa, not(predicate)), _filter(fa, predicate))
 
 /**
  * @category instance operations
@@ -592,17 +669,20 @@ export const Filterable: Filterable1<URI> = {
  * @category instance operations
  * @since 2.6.3
  */
-export const traverse: PipeableTraverse1<URI> = <F>(F: ApplicativeHKT<F>) => <A, B>(f: (a: A) => HKT<F, B>) => (
-  ta: Option<A>
-): HKT<F, Option<B>> => (isNone(ta) ? F.of(none) : F.map(f(ta.value), some))
+export const traverse: PipeableTraverse1<URI> =
+  <F>(F: ApplicativeHKT<F>) =>
+  <A, B>(f: (a: A) => HKT<F, B>) =>
+  (ta: Option<A>): HKT<F, Option<B>> =>
+    isNone(ta) ? F.of(none) : F.map(f(ta.value), some)
 
 /**
  * @category instance operations
  * @since 2.6.3
  */
-export const sequence: Traversable1<URI>['sequence'] = <F>(F: ApplicativeHKT<F>) => <A>(
-  ta: Option<HKT<F, A>>
-): HKT<F, Option<A>> => (isNone(ta) ? F.of(none) : F.map(ta.value, some))
+export const sequence: Traversable1<URI>['sequence'] =
+  <F>(F: ApplicativeHKT<F>) =>
+  <A>(ta: Option<HKT<F, A>>): HKT<F, Option<A>> =>
+    isNone(ta) ? F.of(none) : F.map(ta.value, some)
 
 /**
  * @category instances
@@ -693,7 +773,7 @@ export const MonadThrow: MonadThrow1<URI> = {
  * @category natural transformations
  * @since 2.0.0
  */
-export const fromEither: FromEither1<URI>['fromEither'] = getRight
+export const fromEither: <A>(fa: Either<unknown, A>) => Option<A> = getRight
 
 /**
  * @category instances
@@ -743,11 +823,15 @@ export const isNone = (fa: Option<unknown>): fa is None => fa._tag === 'None'
 /**
  * Less strict version of [`match`](#match).
  *
+ * The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+ *
  * @category destructors
  * @since 2.10.0
  */
-export const matchW = <B, A, C>(onNone: Lazy<B>, onSome: (a: A) => C) => (ma: Option<A>): B | C =>
-  isNone(ma) ? onNone() : onSome(ma.value)
+export const matchW =
+  <B, A, C>(onNone: Lazy<B>, onSome: (a: A) => C) =>
+  (ma: Option<A>): B | C =>
+    isNone(ma) ? onNone() : onSome(ma.value)
 
 /**
  * Alias of [`matchW`](#matchw).
@@ -797,10 +881,15 @@ export const fold = match
 /**
  * Less strict version of [`getOrElse`](#getorelse).
  *
+ * The `W` suffix (short for **W**idening) means that the handler return type will be merged.
+ *
  * @category destructors
  * @since 2.6.0
  */
-export const getOrElseW = <B>(onNone: Lazy<B>) => <A>(ma: Option<A>): A | B => (isNone(ma) ? onNone() : ma.value)
+export const getOrElseW =
+  <B>(onNone: Lazy<B>) =>
+  <A>(ma: Option<A>): A | B =>
+    isNone(ma) ? onNone() : ma.value
 
 /**
  * Extracts the value out of the structure, if it exists. Otherwise returns the given default value
@@ -878,7 +967,8 @@ export const flatten: <A>(mma: Option<Option<A>>) => Option<A> = compact
  * @category combinators
  * @since 2.0.0
  */
-export const chainFirst = /*#__PURE__*/ chainFirst_(Chain)
+export const chainFirst: <A, B>(f: (a: A) => Option<B>) => (first: Option<A>) => Option<A> =
+  /*#__PURE__*/ chainFirst_(Chain)
 
 /**
  * Derivable from `Extend`.
@@ -892,19 +982,23 @@ export const duplicate: <A>(ma: Option<A>) => Option<Option<A>> = /*#__PURE__*/ 
  * @category combinators
  * @since 2.11.0
  */
-export const fromEitherK = /*#__PURE__*/ fromEitherK_(FromEither)
+export const fromEitherK: <E, A extends ReadonlyArray<unknown>, B>(
+  f: (...a: A) => Either<E, B>
+) => (...a: A) => Option<B> = /*#__PURE__*/ fromEitherK_(FromEither)
 
 /**
  * @category combinators
  * @since 2.11.0
  */
-export const chainEitherK = /*#__PURE__*/ chainEitherK_(FromEither, Chain)
+export const chainEitherK: <E, A, B>(f: (a: A) => Either<E, B>) => (ma: Option<A>) => Option<B> =
+  /*#__PURE__*/ chainEitherK_(FromEither, Chain)
 
 /**
  * @category combinators
  * @since 2.12.0
  */
-export const chainFirstEitherK = /*#__PURE__*/ chainFirstEitherK_(FromEither, Chain)
+export const chainFirstEitherK: <E, A, B>(f: (a: A) => Either<E, B>) => (ma: Option<A>) => Option<A> =
+  /*#__PURE__*/ chainFirstEitherK_(FromEither, Chain)
 
 // -------------------------------------------------------------------------------------
 // interop
@@ -960,8 +1054,10 @@ export const tryCatch = <A>(f: Lazy<A>): Option<A> => {
  * @category interop
  * @since 2.10.0
  */
-export const tryCatchK = <A extends ReadonlyArray<unknown>, B>(f: (...a: A) => B): ((...a: A) => Option<B>) => (...a) =>
-  tryCatch(() => f(...a))
+export const tryCatchK =
+  <A extends ReadonlyArray<unknown>, B>(f: (...a: A) => B): ((...a: A) => Option<B>) =>
+  (...a) =>
+    tryCatch(() => f(...a))
 
 /**
  * Returns a *smart constructor* from a function that returns a nullable value.
@@ -1030,8 +1126,10 @@ export const fromNullableK: <A extends ReadonlyArray<unknown>, B>(
  * @category interop
  * @since 2.9.0
  */
-export const chainNullableK = <A, B>(f: (a: A) => B | null | undefined) => (ma: Option<A>): Option<NonNullable<B>> =>
-  isNone(ma) ? none : fromNullable(f(ma.value))
+export const chainNullableK =
+  <A, B>(f: (a: A) => B | null | undefined) =>
+  (ma: Option<A>): Option<NonNullable<B>> =>
+    isNone(ma) ? none : fromNullable(f(ma.value))
 
 /**
  * Extracts the value out of the structure, if it exists. Otherwise returns `null`.
@@ -1105,9 +1203,7 @@ export const toUndefined: <A>(ma: Option<A>) => A | undefined = /*#__PURE__*/ ma
  *
  * @since 2.0.0
  */
-export function elem<A>(
-  E: Eq<A>
-): {
+export function elem<A>(E: Eq<A>): {
   (a: A): (ma: Option<A>) => boolean
   (a: A, ma: Option<A>): boolean
 }
@@ -1152,8 +1248,10 @@ export function elem<A>(E: Eq<A>): (a: A, ma?: Option<A>) => boolean | ((ma: Opt
  *
  * @since 2.0.0
  */
-export const exists = <A>(predicate: Predicate<A>) => (ma: Option<A>): boolean =>
-  isNone(ma) ? false : predicate(ma.value)
+export const exists =
+  <A>(predicate: Predicate<A>) =>
+  (ma: Option<A>): boolean =>
+    isNone(ma) ? false : predicate(ma.value)
 
 // -------------------------------------------------------------------------------------
 // do notation
@@ -1168,6 +1266,15 @@ export const Do: Option<{}> = /*#__PURE__*/ of(_.emptyRecord)
  * @since 2.8.0
  */
 export const bindTo = /*#__PURE__*/ bindTo_(Functor)
+
+const let_ = /*#__PURE__*/ let__(Functor)
+
+export {
+  /**
+   * @since 2.13.0
+   */
+  let_ as let
+}
 
 /**
  * @since 2.8.0
@@ -1201,23 +1308,23 @@ export const ApT: Option<readonly []> = /*#__PURE__*/ of(_.emptyReadonlyArray)
  *
  * @since 2.11.0
  */
-export const traverseReadonlyNonEmptyArrayWithIndex = <A, B>(f: (index: number, a: A) => Option<B>) => (
-  as: ReadonlyNonEmptyArray<A>
-): Option<ReadonlyNonEmptyArray<B>> => {
-  const o = f(0, _.head(as))
-  if (isNone(o)) {
-    return none
-  }
-  const out: NonEmptyArray<B> = [o.value]
-  for (let i = 1; i < as.length; i++) {
-    const o = f(i, as[i])
+export const traverseReadonlyNonEmptyArrayWithIndex =
+  <A, B>(f: (index: number, a: A) => Option<B>) =>
+  (as: ReadonlyNonEmptyArray<A>): Option<ReadonlyNonEmptyArray<B>> => {
+    const o = f(0, _.head(as))
     if (isNone(o)) {
       return none
     }
-    out.push(o.value)
+    const out: NonEmptyArray<B> = [o.value]
+    for (let i = 1; i < as.length; i++) {
+      const o = f(i, as[i])
+      if (isNone(o)) {
+        return none
+      }
+      out.push(o.value)
+    }
+    return some(out)
   }
-  return some(out)
-}
 
 /**
  * Equivalent to `ReadonlyArray#traverseWithIndex(Applicative)`.
@@ -1247,9 +1354,8 @@ export const traverseArray = <A, B>(f: (a: A) => Option<B>): ((as: ReadonlyArray
 /**
  * @since 2.9.0
  */
-export const sequenceArray: <A>(
-  arr: ReadonlyArray<Option<A>>
-) => Option<ReadonlyArray<A>> = /*#__PURE__*/ traverseArray(identity)
+export const sequenceArray: <A>(arr: ReadonlyArray<Option<A>>) => Option<ReadonlyArray<A>> =
+  /*#__PURE__*/ traverseArray(identity)
 
 // -------------------------------------------------------------------------------------
 // deprecated

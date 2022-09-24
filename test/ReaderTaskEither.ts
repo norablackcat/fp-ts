@@ -1,21 +1,22 @@
-import { sequenceT } from '../src/Apply.ts'
-import * as E from '../src/Either.ts'
-import { constVoid, flow, pipe, SK } from '../src/function.ts'
-import * as I from '../src/IO.ts'
-import * as IE from '../src/IOEither.ts'
-import * as N from '../src/number.ts'
-import * as O from '../src/Option.ts'
-import * as R from '../src/Reader.ts'
-import * as RE from '../src/ReaderEither.ts'
-import * as RT from '../src/ReaderTask.ts'
-import * as _ from '../src/ReaderTaskEither.ts'
-import * as RA from '../src/ReadonlyArray.ts'
-import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray.ts'
-import { left, right } from '../src/Separated.ts'
-import * as S from '../src/string.ts'
-import * as T from '../src/Task.ts'
-import * as TE from '../src/TaskEither.ts'
-import * as U from './util.ts'
+import { sequenceT } from '../src/Apply'
+import * as E from '../src/Either'
+import { constVoid, flow, pipe, SK } from '../src/function'
+import * as I from '../src/IO'
+import * as IE from '../src/IOEither'
+import * as N from '../src/number'
+import * as O from '../src/Option'
+import * as R from '../src/Reader'
+import * as RE from '../src/ReaderEither'
+import * as RIO from '../src/ReaderIO'
+import * as RT from '../src/ReaderTask'
+import * as _ from '../src/ReaderTaskEither'
+import * as RA from '../src/ReadonlyArray'
+import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray'
+import { left, right } from '../src/Separated'
+import * as S from '../src/string'
+import * as T from '../src/Task'
+import * as TE from '../src/TaskEither'
+import * as U from './util'
 
 describe('ReaderTaskEither', () => {
   describe('pipeables', () => {
@@ -228,6 +229,14 @@ describe('ReaderTaskEither', () => {
 
   it('leftIO', async () => {
     U.deepStrictEqual(await _.leftIO(I.of(1))({})(), E.left(1))
+  })
+
+  it('rightReaderIO', async () => {
+    U.deepStrictEqual(await _.rightReaderIO(RIO.of(1))({})(), E.right(1))
+  })
+
+  it('leftReaderIO', async () => {
+    U.deepStrictEqual(await _.leftReaderIO(RIO.of(1))({})(), E.left(1))
   })
 
   it('fromIOEither', async () => {
@@ -489,6 +498,31 @@ describe('ReaderTaskEither', () => {
     U.deepStrictEqual(await pipe(_.right<{}, never, string>('a'), _.chainFirstReaderEitherKW(f))({})(), E.right('a'))
   })
 
+  it('fromReaderIOK', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await _.fromReaderIOK(f)('a')(undefined)(), E.right(1))
+  })
+
+  it('chainReaderIOKW', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.right('a'), _.chainReaderIOKW(f))({})(), E.right(1))
+  })
+
+  it('chainReaderIOK', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.right('a'), _.chainReaderIOK(f))(undefined)(), E.right(1))
+  })
+
+  it('chainFirstReaderIOKW', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.right('a'), _.chainFirstReaderIOKW(f))({})(), E.right('a'))
+  })
+
+  it('chainFirstReaderIOK', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.right('a'), _.chainFirstReaderIOK(f))({})(), E.right('a'))
+  })
+
   // -------------------------------------------------------------------------------------
   // utils
   // -------------------------------------------------------------------------------------
@@ -498,9 +532,10 @@ describe('ReaderTaskEither', () => {
       await pipe(
         _.right<void, string, number>(1),
         _.bindTo('a'),
-        _.bind('b', () => _.right('b'))
+        _.bind('b', () => _.right('b')),
+        _.let('c', ({ a, b }) => [a, b])
       )(undefined)(),
-      E.right({ a: 1, b: 'b' })
+      E.right({ a: 1, b: 'b', c: [1, 'b'] })
     )
   })
 

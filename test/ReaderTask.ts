@@ -1,14 +1,15 @@
-import { pipe, SK } from '../src/function.ts'
-import * as I from '../src/IO.ts'
-import { monoidString } from '../src/Monoid.ts'
-import * as R from '../src/Reader.ts'
-import * as _ from '../src/ReaderTask.ts'
-import * as RA from '../src/ReadonlyArray.ts'
-import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray.ts'
-import { semigroupString } from '../src/Semigroup.ts'
-import * as S from '../src/string.ts'
-import * as T from '../src/Task.ts'
-import * as U from './util.ts'
+import { pipe, SK } from '../src/function'
+import * as I from '../src/IO'
+import { monoidString } from '../src/Monoid'
+import * as R from '../src/Reader'
+import * as RIO from '../src/ReaderIO'
+import * as _ from '../src/ReaderTask'
+import * as RA from '../src/ReadonlyArray'
+import { ReadonlyNonEmptyArray } from '../src/ReadonlyNonEmptyArray'
+import { semigroupString } from '../src/Semigroup'
+import * as S from '../src/string'
+import * as T from '../src/Task'
+import * as U from './util'
 
 describe('ReaderTask', () => {
   // -------------------------------------------------------------------------------------
@@ -86,6 +87,10 @@ describe('ReaderTask', () => {
     U.deepStrictEqual(await _.fromReader(R.of(1))({})(), 1)
   })
 
+  it('fromReaderIO', async () => {
+    U.deepStrictEqual(await _.fromReaderIO(RIO.of(1))({})(), 1)
+  })
+
   // -------------------------------------------------------------------------------------
   // combinators
   // -------------------------------------------------------------------------------------
@@ -125,6 +130,31 @@ describe('ReaderTask', () => {
     U.deepStrictEqual(await pipe(_.of('a'), _.chain(f))({})(), 1)
   })
 
+  it('fromReaderIOK', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await _.fromReaderIOK(f)('a')(undefined)(), 1)
+  })
+
+  it('chainReaderIOKW', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.of('a'), _.chainReaderIOKW(f))({})(), 1)
+  })
+
+  it('chainReaderIOK', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.of('a'), _.chainReaderIOK(f))(undefined)(), 1)
+  })
+
+  it('chainFirstReaderIOKW', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.of('a'), _.chainFirstReaderIOKW(f))({})(), 'a')
+  })
+
+  it('chainFirstReaderIOK', async () => {
+    const f = (s: string) => RIO.of(s.length)
+    U.deepStrictEqual(await pipe(_.of('a'), _.chainFirstReaderIOK(f))({})(), 'a')
+  })
+
   // -------------------------------------------------------------------------------------
   // instances
   // -------------------------------------------------------------------------------------
@@ -158,9 +188,10 @@ describe('ReaderTask', () => {
       await pipe(
         _.of(1),
         _.bindTo('a'),
-        _.bind('b', () => _.of('b'))
+        _.bind('b', () => _.of('b')),
+        _.let('c', ({ a, b }) => [a, b])
       )(undefined)(),
-      { a: 1, b: 'b' }
+      { a: 1, b: 'b', c: [1, 'b'] }
     )
   })
 

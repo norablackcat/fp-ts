@@ -17,6 +17,54 @@ instance of `None`.
 An option could be looked at as a collection or foldable structure with either one or zero elements.
 Another way to look at `Option` is: it represents the effect of a possibly failing computation.
 
+**Example**
+
+```ts
+import * as O from 'fp-ts/Option'
+import { pipe } from 'fp-ts/function'
+
+const double = (n: number): number => n * 2
+
+export const imperative = (as: ReadonlyArray<number>): string => {
+  const head = (as: ReadonlyArray<number>): number => {
+    if (as.length === 0) {
+      throw new Error()
+    }
+    return as[0]
+  }
+  const inverse = (n: number): number => {
+    if (n === 0) {
+      throw new Error()
+    }
+    return 1 / n
+  }
+  try {
+    return `Result is ${inverse(double(head(as)))}`
+  } catch (e) {
+    return 'no result'
+  }
+}
+
+export const functional = (as: ReadonlyArray<number>): string => {
+  const head = <A>(as: ReadonlyArray<A>): O.Option<A> => (as.length === 0 ? O.none : O.some(as[0]))
+  const inverse = (n: number): O.Option<number> => (n === 0 ? O.none : O.some(1 / n))
+  return pipe(
+    as,
+    head,
+    O.map(double),
+    O.chain(inverse),
+    O.match(
+      () => 'no result', // onNone handler
+      (head) => `Result is ${head}` // onSome handler
+    )
+  )
+}
+
+assert.deepStrictEqual(imperative([1, 2, 3]), functional([1, 2, 3]))
+assert.deepStrictEqual(imperative([]), functional([]))
+assert.deepStrictEqual(imperative([0]), functional([0]))
+```
+
 Added in v2.0.0
 
 ---
@@ -125,6 +173,7 @@ Added in v2.0.0
   - [bindTo](#bindto)
   - [elem](#elem)
   - [exists](#exists)
+  - [let](#let)
   - [sequenceArray](#sequencearray)
   - [traverseArray](#traversearray)
   - [traverseArrayWithIndex](#traversearraywithindex)
@@ -240,7 +289,9 @@ Added in v2.0.0
 **Signature**
 
 ```ts
-export declare const fromEitherK: <E, A, B>(f: (...a: A) => Either<E, B>) => (...a: A) => Option<B>
+export declare const fromEitherK: <E, A extends readonly unknown[], B>(
+  f: (...a: A) => Either<E, B>
+) => (...a: A) => Option<B>
 ```
 
 Added in v2.11.0
@@ -426,6 +477,8 @@ Added in v2.0.0
 
 Less strict version of [`getOrElse`](#getorelse).
 
+The `W` suffix (short for **W**idening) means that the handler return type will be merged.
+
 **Signature**
 
 ```ts
@@ -480,6 +533,8 @@ Added in v2.10.0
 
 Less strict version of [`match`](#match).
 
+The `W` suffix (short for **W**idening) means that the handler return types will be merged.
+
 **Signature**
 
 ```ts
@@ -497,6 +552,13 @@ types of kind `* -> *`.
 
 In case of `Option` returns the left-most non-`None` value.
 
+| x       | y       | pipe(x, alt(() => y) |
+| ------- | ------- | -------------------- |
+| none    | none    | none                 |
+| some(a) | none    | some(a)              |
+| none    | some(b) | some(b)              |
+| some(a) | some(b) | some(a)              |
+
 **Signature**
 
 ```ts
@@ -511,8 +573,15 @@ import { pipe } from 'fp-ts/function'
 
 assert.deepStrictEqual(
   pipe(
+    O.none,
+    O.alt(() => O.none)
+  ),
+  O.none
+)
+assert.deepStrictEqual(
+  pipe(
     O.some('a'),
-    O.alt(() => O.some('b'))
+    O.alt<string>(() => O.none)
   ),
   O.some('a')
 )
@@ -523,6 +592,13 @@ assert.deepStrictEqual(
   ),
   O.some('b')
 )
+assert.deepStrictEqual(
+  pipe(
+    O.some('a'),
+    O.alt(() => O.some('b'))
+  ),
+  O.some('a')
+)
 ```
 
 Added in v2.0.0
@@ -530,6 +606,8 @@ Added in v2.0.0
 ## altW
 
 Less strict version of [`alt`](#alt).
+
+The `W` suffix (short for **W**idening) means that the return types will be merged.
 
 **Signature**
 
@@ -1413,7 +1491,7 @@ Alias of [getRight](#getright)
 **Signature**
 
 ```ts
-export declare const fromEither: NaturalTransformation21<'Either', 'Option'>
+export declare const fromEither: <A>(fa: Either<unknown, A>) => Option<A>
 ```
 
 Added in v2.0.0
@@ -1527,9 +1605,7 @@ Returns `true` if `ma` contains `a`
 **Signature**
 
 ```ts
-export declare function elem<A>(
-  E: Eq<A>
-): {
+export declare function elem<A>(E: Eq<A>): {
   (a: A): (ma: Option<A>) => boolean
   (a: A, ma: Option<A>): boolean
 }
@@ -1589,6 +1665,19 @@ assert.strictEqual(
 ```
 
 Added in v2.0.0
+
+## let
+
+**Signature**
+
+```ts
+export declare const let: <N, A, B>(
+  name: Exclude<N, keyof A>,
+  f: (a: A) => B
+) => (fa: Option<A>) => Option<{ readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }>
+```
+
+Added in v2.13.0
 
 ## sequenceArray
 

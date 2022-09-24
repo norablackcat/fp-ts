@@ -1,6 +1,6 @@
 ---
 title: ReadonlyArray.ts
-nav_order: 83
+nav_order: 84
 parent: Modules
 ---
 
@@ -197,6 +197,7 @@ Added in v2.5.0
   - [intercalate](#intercalate)
   - [isOutOfBound](#isoutofbound)
   - [last](#last)
+  - [let](#let)
   - [lookup](#lookup)
   - [modifyAt](#modifyat)
   - [size](#size)
@@ -214,10 +215,27 @@ Added in v2.5.0
 Identifies an associative operation on a type constructor. It is similar to `Semigroup`, except that it applies to
 types of kind `* -> *`.
 
+In case of `ReadonlyArray` concatenates the inputs into a single array.
+
 **Signature**
 
 ```ts
 export declare const alt: <A>(that: Lazy<readonly A[]>) => (fa: readonly A[]) => readonly A[]
+```
+
+**Example**
+
+```ts
+import * as RA from 'fp-ts/ReadonlyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    RA.alt(() => [4, 5])
+  ),
+  [1, 2, 3, 4, 5]
+)
 ```
 
 Added in v2.5.0
@@ -226,10 +244,27 @@ Added in v2.5.0
 
 Less strict version of [`alt`](#alt).
 
+The `W` suffix (short for **W**idening) means that the return types will be merged.
+
 **Signature**
 
 ```ts
 export declare const altW: <B>(that: Lazy<readonly B[]>) => <A>(fa: readonly A[]) => readonly (B | A)[]
+```
+
+**Example**
+
+```ts
+import * as RA from 'fp-ts/ReadonlyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    RA.altW(() => ['a', 'b'])
+  ),
+  [1, 2, 3, 'a', 'b']
+)
 ```
 
 Added in v2.9.0
@@ -515,6 +550,28 @@ Composes computations in sequence, using the return value of one computation to 
 export declare const chain: <A, B>(f: (a: A) => readonly B[]) => (ma: readonly A[]) => readonly B[]
 ```
 
+**Example**
+
+```ts
+import * as RA from 'fp-ts/ReadonlyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    RA.chain((n) => [`a${n}`, `b${n}`])
+  ),
+  ['a1', 'b1', 'a2', 'b2', 'a3', 'b3']
+)
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    RA.chain(() => [])
+  ),
+  []
+)
+```
+
 Added in v2.5.0
 
 # Pointed
@@ -650,6 +707,28 @@ Derivable from `Chain`.
 
 ```ts
 export declare const chainFirst: <A, B>(f: (a: A) => readonly B[]) => (first: readonly A[]) => readonly A[]
+```
+
+**Example**
+
+```ts
+import * as RA from 'fp-ts/ReadonlyArray'
+import { pipe } from 'fp-ts/function'
+
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    RA.chainFirst(() => ['a', 'b'])
+  ),
+  [1, 1, 2, 2, 3, 3]
+)
+assert.deepStrictEqual(
+  pipe(
+    [1, 2, 3],
+    RA.chainFirst(() => [])
+  ),
+  []
+)
 ```
 
 Added in v2.5.0
@@ -815,9 +894,7 @@ comparisons. The order and references of result values are determined by the fir
 **Signature**
 
 ```ts
-export declare function difference<A>(
-  E: Eq<A>
-): {
+export declare function difference<A>(E: Eq<A>): {
   (xs: ReadonlyArray<A>): (ys: ReadonlyArray<A>) => ReadonlyArray<A>
   (xs: ReadonlyArray<A>, ys: ReadonlyArray<A>): ReadonlyArray<A>
 }
@@ -954,7 +1031,9 @@ Added in v2.5.0
 **Signature**
 
 ```ts
-export declare const fromEitherK: <E, A, B>(f: (...a: A) => Either<E, B>) => (...a: A) => readonly B[]
+export declare const fromEitherK: <E, A extends readonly unknown[], B>(
+  f: (...a: A) => Either<E, B>
+) => (...a: A) => readonly B[]
 ```
 
 Added in v2.11.0
@@ -979,9 +1058,7 @@ comparisons. The order and references of result values are determined by the fir
 **Signature**
 
 ```ts
-export declare function intersection<A>(
-  E: Eq<A>
-): {
+export declare function intersection<A>(E: Eq<A>): {
   (xs: ReadonlyArray<A>): (ys: ReadonlyArray<A>) => ReadonlyArray<A>
   (xs: ReadonlyArray<A>, ys: ReadonlyArray<A>): ReadonlyArray<A>
 }
@@ -1348,9 +1425,7 @@ Creates an array of unique values, in order, from all given arrays using a `Eq` 
 **Signature**
 
 ```ts
-export declare function union<A>(
-  E: Eq<A>
-): {
+export declare function union<A>(E: Eq<A>): {
   (xs: ReadonlyArray<A>): (ys: ReadonlyArray<A>) => ReadonlyArray<A>
   (xs: ReadonlyArray<A>, ys: ReadonlyArray<A>): ReadonlyArray<A>
 }
@@ -1773,6 +1848,8 @@ Added in v2.11.0
 ## matchW
 
 Less strict version of [`match`](#match).
+
+The `W` suffix (short for **W**idening) means that the handler return types will be merged.
 
 **Signature**
 
@@ -2223,7 +2300,7 @@ Transforms an `Either` to a `ReadonlyArray`.
 **Signature**
 
 ```ts
-export declare const fromEither: NaturalTransformation21<'Either', 'ReadonlyArray'>
+export declare const fromEither: <A>(fa: Either<unknown, A>) => readonly A[]
 ```
 
 Added in v2.11.0
@@ -2233,7 +2310,7 @@ Added in v2.11.0
 **Signature**
 
 ```ts
-export declare const fromOption: NaturalTransformation11<'Option', 'ReadonlyArray'>
+export declare const fromOption: <A>(fa: Option<A>) => readonly A[]
 ```
 
 Added in v2.11.0
@@ -2396,9 +2473,7 @@ an array of type `ReadonlyArray<A>`.
 **Signature**
 
 ```ts
-export declare function elem<A>(
-  E: Eq<A>
-): {
+export declare function elem<A>(E: Eq<A>): {
   (a: A): (as: ReadonlyArray<A>) => boolean
   (a: A, as: ReadonlyArray<A>): boolean
 }
@@ -2797,6 +2872,19 @@ assert.deepStrictEqual(last([]), none)
 ```
 
 Added in v2.5.0
+
+## let
+
+**Signature**
+
+```ts
+export declare const let: <N, A, B>(
+  name: Exclude<N, keyof A>,
+  f: (a: A) => B
+) => (fa: readonly A[]) => readonly { readonly [K in N | keyof A]: K extends keyof A ? A[K] : B }[]
+```
+
+Added in v2.13.0
 
 ## lookup
 
